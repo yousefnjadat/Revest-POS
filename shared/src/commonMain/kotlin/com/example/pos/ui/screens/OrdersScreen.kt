@@ -23,7 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.outlined.CloudDone
 import androidx.compose.material.icons.outlined.CloudOff
-import androidx.compose.material.icons.outlined.ReceiptLong
+import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -346,7 +346,7 @@ private fun NoOrders(modifier: Modifier = Modifier) {
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        imageVector = Icons.Outlined.ReceiptLong,
+                        imageVector = Icons.AutoMirrored.Outlined.ReceiptLong,
                         contentDescription = null,
                         modifier = Modifier.size(32.dp),
                     )

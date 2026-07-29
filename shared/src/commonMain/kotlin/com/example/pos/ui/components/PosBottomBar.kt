@@ -1,10 +1,10 @@
 package com.example.pos.ui.components
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ReceiptLong
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
+import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Storefront
-import androidx.compose.material.icons.outlined.ReceiptLong
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material3.Badge
@@ -86,5 +86,9 @@ private fun AppDestination.icon(selected: Boolean): ImageVector =
             if (selected) Icons.Filled.ShoppingCart else Icons.Outlined.ShoppingCart
 
         AppDestination.ORDERS ->
-            if (selected) Icons.Filled.ReceiptLong else Icons.Outlined.ReceiptLong
+            if (selected) {
+                Icons.AutoMirrored.Filled.ReceiptLong
+            } else {
+                Icons.AutoMirrored.Outlined.ReceiptLong
+            }
     }
