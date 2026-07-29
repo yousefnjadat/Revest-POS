@@ -60,6 +60,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.koin.android)
             implementation(libs.sqldelight.driver.android)
+            implementation(compose.preview)
         }
 
         // Android unit tests run on the JVM, so the real schema and queries can be exercised
@@ -82,6 +83,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+}
+
+dependencies {
+    // Renders the @Preview composables inside Android Studio; debug builds only.
+    debugImplementation(compose.uiTooling)
 }
 
 sqldelight {

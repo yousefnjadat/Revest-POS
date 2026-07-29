@@ -1,11 +1,10 @@
 package com.example.pos.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -24,7 +23,6 @@ import com.example.pos.ui.components.PosTopBar
 import com.example.pos.ui.screens.CartScreen
 import com.example.pos.ui.screens.CatalogScreen
 import com.example.pos.ui.screens.OrdersScreen
-import com.example.pos.ui.theme.PosSpacing
 import com.example.pos.ui.theme.PosTheme
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -64,22 +62,14 @@ fun PosApp(viewModel: PosViewModel = koinViewModel()) {
             },
             snackbarHost = { SnackbarHost(snackbarHostState) },
         ) { contentPadding ->
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(contentPadding)
-                        .verticalScroll(rememberScrollState())
-                        .padding(
-                            horizontal = PosSpacing.screenHorizontal,
-                            vertical = PosSpacing.md,
-                        ),
-            ) {
+            // Each screen owns its own scrolling, so lazy lists and grids keep bounded heights.
+            Box(modifier = Modifier.fillMaxSize().padding(contentPadding)) {
                 when (state.destination) {
                     AppDestination.CATALOG ->
                         CatalogScreen(
                             state = state,
                             onAddProduct = viewModel::addProduct,
+                            onDecreaseProduct = viewModel::decreaseProduct,
                             onRetry = viewModel::retryCatalog,
                         )
 
