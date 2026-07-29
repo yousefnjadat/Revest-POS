@@ -41,6 +41,7 @@ data class Order(
     val syncState: OrderSyncState,
     val attemptCount: Int = 0,
     val lastError: String? = null,
+    val syncedAtEpochMillis: Long? = null,
 ) {
     val itemCount: Int get() = lines.sumOf { it.quantity }
 }

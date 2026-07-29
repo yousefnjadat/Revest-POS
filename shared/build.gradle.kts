@@ -59,6 +59,12 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.sqldelight.driver.android)
         }
+
+        // Android unit tests run on the JVM, so the real schema and queries can be exercised
+        // against an in-memory SQLite database without a device or a Desktop target.
+        androidUnitTest.dependencies {
+            implementation(libs.sqldelight.driver.jvm)
+        }
     }
 }
 

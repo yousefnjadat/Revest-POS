@@ -1,0 +1,47 @@
+-- Every checked-out order lives here, synced or not. `synced_at` is what separates the two:
+-- NULL means the backend has not accepted it yet. Keeping both in one table lets the Orders
+-- screen show a single history list without a second query or a second table.
+--
+-- The line items travel as a JSON payload rather than a normalized child table: they are only
+-- ever read back as a whole order, so a join would buy nothing. The money columns stay as real
+-- columns because they are what the app filters, sums, and displays.
+CREATE TABLE pending_orders (
+    id             TEXT    NOT NULL PRIMARY KEY,
+    payload        TEXT    NOT NULL,
+    subtotal_cents INTEGER NOT NULL,
+    tax_cents      INTEGER NOT NULL,
+    discount_cents INTEGER NOT NULL,
+    total_cents    INTEGER NOT NULL,
+    created_at     INTEGER NOT NULL,
+    synced_at      INTEGER,
+    sync_attempts  INTEGER NOT NULL DEFAULT 0,
+    last_error     TEXT
+);
+
+CREATE INDEX pending_orders_unsynced ON pending_orders(synced_at, created_at);
+
+-- OR IGNORE makes checkout idempotent: replaying the same order UUID can never insert twice.
+insertOrder:
+INSERT OR IGNORE INTO pending_orders(id, payload, subtotal_cents, tax_cents, discount_cents, total_cents, created_at)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+selectAll:
+SELECT * FROM pending_orders ORDER BY created_at DESC;
+
+selectUnsynced:
+SELECT * FROM pending_orders WHERE synced_at IS NULL ORDER BY created_at ASC;
+
+selectById:
+SELECT * FROM pending_orders WHERE id = ?;
+
+countAll:
+SELECT count(*) FROM pending_orders;
+
+recordSyncAttempt:
+UPDATE pending_orders SET sync_attempts = sync_attempts + 1 WHERE id = ?;
+
+markSynced:
+UPDATE pending_orders SET synced_at = ?, last_error = NULL WHERE id = ?;
+
+recordSyncError:
+UPDATE pending_orders SET last_error = ? WHERE id = ?;
