@@ -4,6 +4,7 @@ kotlin = "2.2.21"
 composeMultiplatform = "1.9.3"
 coroutines = "1.10.2"
 serialization = "1.7.3"
+
 ktor = "3.0.0"
 sqldelight = "2.0.2"
 koin = "4.1.1"
