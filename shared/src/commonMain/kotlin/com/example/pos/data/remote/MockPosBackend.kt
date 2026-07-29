@@ -35,9 +35,6 @@ enum class TransientFailureMode {
     /** The first order the backend ever sees fails its first attempt, then succeeds on retry. */
     FirstOrderOnly,
 
-    /** Every order fails its first attempt. Useful for exercising a whole failed backlog. */
-    EveryOrderOnce,
-
     /** Nothing fails. */
     None,
 }
@@ -116,7 +113,7 @@ class MockPosBackend(
                         // Already recorded: acknowledge without accepting it twice.
                         HttpStatusCode.OK to true
 
-                    shouldFailNow(body.orderId) -> {
+                    shouldFailNow() -> {
                         failedOnce += body.orderId
                         HttpStatusCode.ServiceUnavailable to false
                     }
@@ -154,10 +151,9 @@ class MockPosBackend(
         return respondJson(responseBody, status)
     }
 
-    private fun shouldFailNow(orderId: String): Boolean =
+    private fun shouldFailNow(): Boolean =
         when (failureMode) {
             TransientFailureMode.None -> false
-            TransientFailureMode.EveryOrderOnce -> orderId !in failedOnce
             // Only the very first order the backend sees is disrupted, and only once.
             TransientFailureMode.FirstOrderOnly -> failedOnce.isEmpty() && accepted.isEmpty()
         }

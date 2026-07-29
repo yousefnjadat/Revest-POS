@@ -15,7 +15,6 @@ import kotlinx.coroutines.sync.Mutex
 
 /** What one sync run did. [skipped] means another run already held the lock. */
 internal data class SyncOutcome(
-    val trigger: SyncTrigger,
     val syncedCount: Int = 0,
     val failedCount: Int = 0,
     val skipped: Boolean = false,
@@ -49,7 +48,7 @@ internal class OrderSyncCoordinator(
 
         if (!mutex.tryLock()) {
             log("sync skipped (${trigger.label}): a sync is already running")
-            return SyncOutcome(trigger = trigger, skipped = true)
+            return SyncOutcome(skipped = true)
         }
 
         _isSyncing.value = true
@@ -57,7 +56,7 @@ internal class OrderSyncCoordinator(
             val pending = orders.unsyncedOrders()
             if (pending.isEmpty()) {
                 log("sync finished (${trigger.label}): nothing pending")
-                return SyncOutcome(trigger = trigger)
+                return SyncOutcome()
             }
 
             log("sync started (${trigger.label}): ${pending.size} order(s) pending")
@@ -68,7 +67,7 @@ internal class OrderSyncCoordinator(
             }
 
             log("sync finished (${trigger.label}): synced=$synced failed=$failed")
-            return SyncOutcome(trigger = trigger, syncedCount = synced, failedCount = failed)
+            return SyncOutcome(syncedCount = synced, failedCount = failed)
         } finally {
             _isSyncing.value = false
             mutex.unlock()

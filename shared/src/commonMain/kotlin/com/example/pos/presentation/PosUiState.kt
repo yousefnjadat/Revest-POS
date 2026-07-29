@@ -54,6 +54,4 @@ data class PosUiState(
     val pendingOrderCount: Int get() = orders.count { it.syncState.needsSync }
 
     fun productOrNull(productId: String): Product? = products.firstOrNull { it.id == productId }
-
-    fun orderOrNull(orderId: String): Order? = orders.firstOrNull { it.id == orderId }
 }

@@ -1,10 +1,20 @@
-*.iml
+# Gradle / build output
 .gradle/
-.idea/
-.kotlin/
 build/
-local.properties
 captures/
-.externalNativeBuild/
 .cxx/
+.externalNativeBuild/
+
+# Kotlin
+.kotlin/
+
+# Local machine configuration — never commit
+local.properties
+
+# IDE
+.idea/
+*.iml
+
+# Misc
 *.hprof
+.DS_Store

@@ -7,7 +7,6 @@ import com.example.pos.data.catalog.CatalogRepository
 import com.example.pos.data.catalog.CatalogResult
 import com.example.pos.data.order.OrderRepository
 import com.example.pos.data.sync.OrderSyncCoordinator
-import com.example.pos.domain.Cart
 import com.example.pos.domain.SyncTrigger
 import com.example.pos.domain.toOrder
 import kotlin.coroutines.cancellation.CancellationException
@@ -133,7 +132,7 @@ class PosViewModel internal constructor(
             // Land on Orders so the cashier immediately sees the sale and how its sync is going.
             _state.update {
                 it.copy(
-                    cart = Cart(),
+                    cart = it.cart.clear(),
                     isCheckingOut = false,
                     destination = AppDestination.ORDERS,
                 )
