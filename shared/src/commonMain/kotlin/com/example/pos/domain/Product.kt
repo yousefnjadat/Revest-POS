@@ -4,7 +4,6 @@ package com.example.pos.domain
 data class Product(
     val id: String,
     val name: String,
-    val category: String,
     val priceCents: Long,
     val stock: Int,
     val taxable: Boolean,

@@ -7,12 +7,10 @@ internal fun product(
     stock: Int = 10,
     taxable: Boolean = true,
     name: String = "Product $id",
-    category: String = "Test",
 ): Product =
     Product(
         id = id,
         name = name,
-        category = category,
         priceCents = priceCents,
         stock = stock,
         taxable = taxable,
