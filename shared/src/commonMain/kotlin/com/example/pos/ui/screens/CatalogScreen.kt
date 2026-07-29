@@ -5,9 +5,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,25 +23,23 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.Inventory2
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.pos.domain.Product
 import com.example.pos.presentation.CatalogUiState
 import com.example.pos.presentation.PosUiState
+import com.example.pos.ui.components.EmptyState
+import com.example.pos.ui.components.MoneyText
+import com.example.pos.ui.components.PosCard
 import com.example.pos.ui.components.ProductCard
-import com.example.pos.ui.formatMoney
+import com.example.pos.ui.components.ScreenHeader
 import com.example.pos.ui.theme.PosSpacing
 
 /** Below this width a two-column grid squeezes product names into unreadable stacks. */
@@ -59,34 +55,36 @@ fun CatalogScreen(
 ) {
     Column(modifier = modifier.fillMaxSize()) {
         when (val catalog = state.catalog) {
-            is CatalogUiState.Loading ->
+            is CatalogUiState.Loading -> {
+                ScreenHeader(title = "Products")
                 CatalogSkeleton(modifier = Modifier.weight(1f))
+            }
 
             is CatalogUiState.Empty ->
-                CatalogNotice(
+                EmptyState(
                     icon = Icons.Outlined.Inventory2,
                     title = "No products yet",
-                    body = "The catalog came back empty. Reload once stock has been published.",
+                    message = "The catalog came back empty. Reload once stock has been published.",
                     actionLabel = "Reload",
                     onAction = onRetry,
                     modifier = Modifier.weight(1f),
                 )
 
             is CatalogUiState.Error ->
-                CatalogNotice(
+                EmptyState(
                     icon = Icons.Outlined.ErrorOutline,
                     title = "Couldn't load the catalog",
-                    body = catalog.message,
+                    message = catalog.message,
+                    isError = true,
                     actionLabel = "Try again",
                     onAction = onRetry,
-                    isError = true,
                     modifier = Modifier.weight(1f),
                 )
 
             is CatalogUiState.Content -> {
-                CatalogHeader(
-                    availableCount = catalog.products.count { it.inStock },
-                    modifier = Modifier.padding(horizontal = PosSpacing.screenHorizontal),
+                ScreenHeader(
+                    title = "Products",
+                    trailing = "${catalog.products.count { it.inStock }} available",
                 )
                 ProductCollection(
                     products = catalog.products,
@@ -99,22 +97,6 @@ fun CatalogScreen(
         }
 
         CartSummaryBar(itemCount = state.cartItemCount, totalCents = state.totals.totalCents)
-    }
-}
-
-@Composable
-private fun CatalogHeader(availableCount: Int, modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier.fillMaxWidth().padding(vertical = PosSpacing.md),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(text = "Products", style = MaterialTheme.typography.headlineSmall)
-        Text(
-            text = "$availableCount available",
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
     }
 }
 
@@ -176,15 +158,9 @@ private fun CatalogSkeleton(modifier: Modifier = Modifier) {
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(horizontal = PosSpacing.screenHorizontal, vertical = PosSpacing.md),
+                .padding(horizontal = PosSpacing.screenHorizontal),
         verticalArrangement = Arrangement.spacedBy(PosSpacing.sm),
     ) {
-        Text(
-            text = "Loading products...",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = PosSpacing.sm),
-        )
         repeat(3) {
             Row(horizontalArrangement = Arrangement.spacedBy(PosSpacing.sm)) {
                 SkeletonCard(modifier = Modifier.weight(1f))
@@ -196,80 +172,22 @@ private fun CatalogSkeleton(modifier: Modifier = Modifier) {
 
 @Composable
 private fun SkeletonCard(modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier.height(172.dp),
-        shape = MaterialTheme.shapes.large,
-        colors =
-            CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-    ) {
-        Column(
-            modifier = Modifier.padding(PosSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(PosSpacing.sm),
-        ) {
-            SkeletonBlock(width = 40.dp, height = 40.dp)
-            SkeletonBlock(width = 120.dp, height = 14.dp)
-            SkeletonBlock(width = 72.dp, height = 14.dp)
-            SkeletonBlock(width = 148.dp, height = 36.dp)
-        }
+    PosCard(modifier = modifier) {
+        SkeletonBlock(width = 40.dp, height = 40.dp)
+        SkeletonBlock(width = 120.dp, height = 14.dp)
+        SkeletonBlock(width = 72.dp, height = 14.dp)
+        SkeletonBlock(width = 148.dp, height = PosSpacing.touchTarget)
     }
 }
 
 @Composable
-private fun SkeletonBlock(width: androidx.compose.ui.unit.Dp, height: androidx.compose.ui.unit.Dp) {
+private fun SkeletonBlock(width: Dp, height: Dp) {
     Surface(
         modifier = Modifier.size(width = width, height = height),
         shape = MaterialTheme.shapes.small,
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
         content = {},
     )
-}
-
-@Composable
-private fun CatalogNotice(
-    icon: ImageVector,
-    title: String,
-    body: String,
-    actionLabel: String,
-    onAction: () -> Unit,
-    modifier: Modifier = Modifier,
-    isError: Boolean = false,
-) {
-    Box(
-        modifier = modifier.fillMaxSize().padding(PosSpacing.xl),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(PosSpacing.sm),
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(40.dp),
-                tint =
-                    if (isError) {
-                        MaterialTheme.colorScheme.error
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    },
-            )
-            Text(text = title, style = MaterialTheme.typography.titleMedium)
-            Text(
-                text = body,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-            )
-            Button(
-                onClick = onAction,
-                modifier = Modifier.height(PosSpacing.touchTarget).padding(top = PosSpacing.xs),
-            ) {
-                Text(actionLabel)
-            }
-        }
-    }
 }
 
 /** Sits directly above the bottom bar, so the running total is visible while browsing. */
@@ -287,10 +205,8 @@ private fun CartSummaryBar(itemCount: Int, totalCents: Long) {
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .padding(
-                                horizontal = PosSpacing.screenHorizontal,
-                                vertical = PosSpacing.sm,
-                            ),
+                            .height(PosSpacing.touchTarget)
+                            .padding(horizontal = PosSpacing.screenHorizontal),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -299,8 +215,8 @@ private fun CartSummaryBar(itemCount: Int, totalCents: Long) {
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    Text(
-                        text = formatMoney(totalCents),
+                    MoneyText(
+                        cents = totalCents,
                         style = MaterialTheme.typography.titleMedium,
                     )
                 }

@@ -16,17 +16,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.example.pos.domain.CartCalculator
 import com.example.pos.domain.CartTotals
 import com.example.pos.ui.formatMoney
 import com.example.pos.ui.theme.PosSpacing
+import com.example.pos.ui.theme.statusColors
 
 /**
  * Subtotal, tax, discount, total. The discount line only appears once it has been earned —
  * before that the panel says how much more it would take, which is information the cashier can
  * act on rather than a permanently greyed-out row.
+ *
+ * Only the total is typographically loud; everything above it is quiet supporting detail.
  */
 @Composable
 fun CartTotalsPanel(
@@ -37,18 +39,18 @@ fun CartTotalsPanel(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(PosSpacing.xs),
     ) {
-        TotalsRow(label = "Subtotal", value = formatMoney(totals.subtotalCents))
+        TotalsRow(label = "Subtotal", cents = totals.subtotalCents)
         TotalsRow(
             label = "Tax (${CartCalculator.TAX_PERCENT}% of taxable items)",
-            value = formatMoney(totals.taxCents),
+            cents = totals.taxCents,
         )
 
         if (totals.discountApplied) {
             TotalsRow(
                 label = "Discount (${CartCalculator.DISCOUNT_PERCENT}%)",
-                value = "-${formatMoney(totals.discountCents)}",
-                valueColor = MaterialTheme.colorScheme.primary,
-                emphasised = true,
+                cents = totals.discountCents,
+                prefix = "-",
+                color = MaterialTheme.statusColors.success,
             )
         } else if (totals.subtotalCents > 0) {
             DiscountHint(
@@ -67,8 +69,8 @@ fun CartTotalsPanel(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(text = "Total", style = MaterialTheme.typography.titleMedium)
-            Text(
-                text = formatMoney(totals.totalCents),
+            MoneyText(
+                cents = totals.totalCents,
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurface,
             )
@@ -79,35 +81,20 @@ fun CartTotalsPanel(
 @Composable
 private fun TotalsRow(
     label: String,
-    value: String,
-    valueColor: Color = MaterialTheme.colorScheme.onSurface,
-    emphasised: Boolean = false,
+    cents: Long,
+    prefix: String = "",
+    color: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
-    val labelStyle: TextStyle =
-        if (emphasised) {
-            MaterialTheme.typography.labelLarge
-        } else {
-            MaterialTheme.typography.bodyMedium
-        }
-
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Text(
-            text = label,
-            style = labelStyle,
-            color =
-                if (emphasised) {
-                    valueColor
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                },
-        )
-        Text(
-            text = value,
-            style = if (emphasised) MaterialTheme.typography.labelLarge else MaterialTheme.typography.bodyMedium,
-            color = valueColor,
+        Text(text = label, style = MaterialTheme.typography.bodyMedium, color = color)
+        MoneyText(
+            cents = cents,
+            prefix = prefix,
+            style = MaterialTheme.typography.bodyMedium,
+            color = color,
         )
     }
 }
