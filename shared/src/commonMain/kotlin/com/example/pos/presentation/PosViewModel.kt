@@ -130,11 +130,12 @@ class PosViewModel internal constructor(
                 return@launch
             }
 
+            // Land on Orders so the cashier immediately sees the sale and how its sync is going.
             _state.update {
                 it.copy(
                     cart = Cart(),
                     isCheckingOut = false,
-                    destination = AppDestination.Receipt(order.id),
+                    destination = AppDestination.ORDERS,
                 )
             }
             notify("Order saved", UserMessage.Tone.Success)

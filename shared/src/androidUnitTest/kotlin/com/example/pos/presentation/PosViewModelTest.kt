@@ -187,9 +187,9 @@ class PosViewModelTest {
     fun selectingADestinationMovesTheApp() = runTest(mainDispatcher) {
         val viewModel = readyViewModel()
 
-        viewModel.selectDestination(AppDestination.Orders)
+        viewModel.selectDestination(AppDestination.ORDERS)
 
-        assertEquals(AppDestination.Orders, viewModel.state.value.destination)
+        assertEquals(AppDestination.ORDERS, viewModel.state.value.destination)
     }
 
     // --- checkout ------------------------------------------------------------------------
@@ -204,11 +204,11 @@ class PosViewModelTest {
 
         assertNull(orders.findById("order-1"))
         assertEquals(1, messages.size)
-        assertEquals(AppDestination.Catalog, viewModel.state.value.destination)
+        assertEquals(AppDestination.CATALOG, viewModel.state.value.destination)
     }
 
     @Test
-    fun checkoutPersistsTheOrderClearsTheCartAndOpensTheReceipt() = runTest(mainDispatcher) {
+    fun checkoutPersistsTheOrderClearsTheCartAndOpensOrders() = runTest(mainDispatcher) {
         val viewModel = readyViewModel()
         viewModel.addProduct("mug")
 
@@ -222,7 +222,7 @@ class PosViewModelTest {
         val state = viewModel.state.value
         assertTrue(state.cart.isEmpty, "the cart is cleared once the order is stored")
         assertTrue(!state.isCheckingOut)
-        assertEquals(AppDestination.Receipt("order-1"), state.destination)
+        assertEquals(AppDestination.ORDERS, state.destination)
         assertEquals(listOf("order-1"), state.orders.map { it.id })
     }
 
@@ -238,7 +238,7 @@ class PosViewModelTest {
 
         assertEquals(1, viewModel.state.value.cart.quantityOf("mug"))
         assertTrue(!viewModel.state.value.isCheckingOut)
-        assertEquals(AppDestination.Catalog, viewModel.state.value.destination)
+        assertEquals(AppDestination.CATALOG, viewModel.state.value.destination)
         assertTrue(api.submitted.isEmpty(), "nothing may be sent if the order was not stored")
         assertEquals(UserMessage.Tone.Error, messages.last().tone)
     }

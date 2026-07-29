@@ -33,7 +33,7 @@ data class UserMessage(
  * [com.example.pos.domain.CartCalculator].
  */
 data class PosUiState(
-    val destination: AppDestination = AppDestination.Catalog,
+    val destination: AppDestination = AppDestination.CATALOG,
     val catalog: CatalogUiState = CatalogUiState.Loading,
     val cart: Cart = Cart(),
     val isOnline: Boolean = true,

@@ -1,15 +1,11 @@
 package com.example.pos.presentation
 
 /**
- * Where the app currently is. A sealed type rather than a navigation library — there are four
- * places to be, and only the receipt needs an argument.
+ * Where the app currently is. An enum in state rather than a navigation library — there are
+ * three places to be and none of them takes an argument.
  */
-sealed interface AppDestination {
-    data object Catalog : AppDestination
-
-    data object Cart : AppDestination
-
-    data object Orders : AppDestination
-
-    data class Receipt(val orderId: String) : AppDestination
+enum class AppDestination(val label: String) {
+    CATALOG("Catalog"),
+    CART("Cart"),
+    ORDERS("Orders"),
 }
