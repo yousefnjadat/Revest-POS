@@ -119,6 +119,24 @@ private fun OrdersSyncingPreview() {
     )
 }
 
+@Preview(name = "Orders - large font scale", showBackground = true, fontScale = 1.5f)
+@Composable
+private fun OrdersLargeFontPreview() {
+    PreviewOrders(
+        PosUiState(
+            orders =
+                listOf(
+                    sampleOrder(
+                        id = "6b1efd47-failed",
+                        syncState = OrderSyncState.FAILED,
+                        attemptCount = 1,
+                        lastError = "Server responded 503",
+                    ),
+                ),
+        ),
+    )
+}
+
 @Preview(name = "Orders - offline", showBackground = true)
 @Composable
 private fun OrdersOfflinePreview() {

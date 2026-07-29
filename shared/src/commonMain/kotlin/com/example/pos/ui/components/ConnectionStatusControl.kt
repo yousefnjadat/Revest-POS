@@ -2,7 +2,7 @@ package com.example.pos.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,11 +26,11 @@ import com.example.pos.ui.theme.PosSpacing
 import com.example.pos.ui.theme.statusColors
 
 /**
- * The online/offline toggle in the app bar.
+ * The online/offline toggle in the app bar — the single most important piece of status in an
+ * offline-first till, so it is always visible and always one tap away.
  *
- * Status is carried three ways — a distinct icon, a written label, and colour — so it never
- * depends on colour alone. The whole pill is one 48dp-high tap target, and screen readers
- * announce it as a switch with its current state.
+ * Status is carried three ways (icon, word, colour), never colour alone. The whole pill is one
+ * 48dp target and is announced as a switch with its current state.
  */
 @Composable
 fun ConnectionStatusControl(
@@ -50,13 +50,12 @@ fun ConnectionStatusControl(
         } else {
             MaterialTheme.statusColors.onWarningContainer
         }
-    val label = if (isOnline) "Online" else "Offline"
 
     Surface(
         onClick = { onToggle(!isOnline) },
         modifier =
             modifier
-                .defaultMinSize(minHeight = PosSpacing.touchTarget)
+                .heightIn(min = PosSpacing.touchTarget)
                 .semantics(mergeDescendants = true) {
                     role = Role.Switch
                     contentDescription = "Connection"
@@ -67,7 +66,7 @@ fun ConnectionStatusControl(
         contentColor = content,
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = PosSpacing.md, vertical = PosSpacing.sm),
+            modifier = Modifier.padding(horizontal = PosSpacing.md),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(PosSpacing.sm),
         ) {
@@ -76,7 +75,10 @@ fun ConnectionStatusControl(
                 contentDescription = null,
                 modifier = Modifier.size(18.dp),
             )
-            Text(text = label, style = MaterialTheme.typography.labelLarge)
+            Text(
+                text = if (isOnline) "Online" else "Offline",
+                style = MaterialTheme.typography.labelLarge,
+            )
         }
     }
 }

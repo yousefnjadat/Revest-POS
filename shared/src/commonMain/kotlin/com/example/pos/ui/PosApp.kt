@@ -1,10 +1,15 @@
 package com.example.pos.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -23,6 +28,7 @@ import com.example.pos.ui.components.PosTopBar
 import com.example.pos.ui.screens.CartScreen
 import com.example.pos.ui.screens.CatalogScreen
 import com.example.pos.ui.screens.OrdersScreen
+import androidx.compose.ui.unit.dp
 import com.example.pos.ui.theme.PosTheme
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -47,18 +53,29 @@ fun PosApp(viewModel: PosViewModel = koinViewModel()) {
             topBar = {
                 Column {
                     PosTopBar(isOnline = state.isOnline, onToggleOnline = viewModel::setOnline)
-                    if (state.isSyncing) {
-                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    // A 2dp bar rather than a spinner: progress belongs to the whole app here.
+                    AnimatedVisibility(
+                        visible = state.isSyncing,
+                        enter = fadeIn(),
+                        exit = fadeOut(),
+                    ) {
+                        LinearProgressIndicator(
+                            modifier = Modifier.fillMaxWidth().height(2.dp),
+                        )
                     }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 }
             },
             bottomBar = {
-                PosBottomBar(
-                    current = state.destination,
-                    cartItemCount = state.cartItemCount,
-                    pendingOrderCount = state.pendingOrderCount,
-                    onSelect = viewModel::selectDestination,
-                )
+                Column {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    PosBottomBar(
+                        current = state.destination,
+                        cartItemCount = state.cartItemCount,
+                        pendingOrderCount = state.pendingOrderCount,
+                        onSelect = viewModel::selectDestination,
+                    )
+                }
             },
             snackbarHost = { SnackbarHost(snackbarHostState) },
         ) { contentPadding ->

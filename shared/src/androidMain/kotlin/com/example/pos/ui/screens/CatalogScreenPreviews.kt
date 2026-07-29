@@ -94,3 +94,15 @@ private fun CatalogAtStockLimitPreview() {
 private fun CatalogNarrowPreview() {
     PreviewCatalog(PosUiState(catalog = CatalogUiState.Content(PreviewProducts)))
 }
+
+@Preview(name = "Catalog - large font scale", showBackground = true, fontScale = 1.5f)
+@Composable
+private fun CatalogLargeFontPreview() {
+    val mug = PreviewProducts.first { it.id == "sku-2001" }
+    PreviewCatalog(
+        PosUiState(
+            catalog = CatalogUiState.Content(PreviewProducts),
+            cart = Cart().add(mug, quantity = 2),
+        ),
+    )
+}

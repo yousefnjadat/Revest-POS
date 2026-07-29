@@ -2,11 +2,11 @@ package com.example.pos.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -19,14 +19,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.outlined.CloudDone
 import androidx.compose.material.icons.outlined.CloudOff
-import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
+import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -34,15 +34,22 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.example.pos.domain.Order
 import com.example.pos.domain.OrderSyncState
 import com.example.pos.presentation.PosUiState
+import com.example.pos.ui.components.BannerTone
+import com.example.pos.ui.components.EmptyState
+import com.example.pos.ui.components.MoneyText
+import com.example.pos.ui.components.PosBanner
+import com.example.pos.ui.components.PosCard
+import com.example.pos.ui.components.ScreenHeader
 import com.example.pos.ui.components.SyncStatusChip
-import com.example.pos.ui.formatMoney
 import com.example.pos.ui.formatOrderTime
 import com.example.pos.ui.orderReference
 import com.example.pos.ui.theme.PosSpacing
@@ -55,6 +62,16 @@ fun OrdersScreen(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxSize()) {
+        ScreenHeader(
+            title = "Orders",
+            trailing =
+                when (state.orders.size) {
+                    0 -> null
+                    1 -> "1 sale"
+                    else -> "${state.orders.size} sales"
+                },
+        )
+
         SyncSummaryCard(
             state = state,
             onSyncNow = onSyncNow,
@@ -62,17 +79,31 @@ fun OrdersScreen(
                 Modifier.padding(
                     start = PosSpacing.screenHorizontal,
                     end = PosSpacing.screenHorizontal,
-                    top = PosSpacing.md,
                     bottom = PosSpacing.sm,
                 ),
         )
 
         if (state.orders.isEmpty()) {
-            NoOrders(modifier = Modifier.weight(1f))
+            EmptyState(
+                icon = Icons.AutoMirrored.Outlined.ReceiptLong,
+                title = "No sales yet",
+                message = "Completed sales are stored on this device and listed here with their sync state.",
+                modifier = Modifier.weight(1f),
+            )
             return@Column
         }
 
+        // A new order is prepended, and LazyColumn keeps its anchor when items are inserted
+        // above the viewport — which would leave the sale just rung up scrolled off the top.
+        // Snap back to the newest order whenever one arrives.
+        val listState = rememberLazyListState()
+        val newestOrderId = state.orders.firstOrNull()?.id
+        LaunchedEffect(newestOrderId) {
+            if (newestOrderId != null) listState.animateScrollToItem(index = 0)
+        }
+
         LazyColumn(
+            state = listState,
             modifier = Modifier.weight(1f),
             contentPadding =
                 PaddingValues(
@@ -99,96 +130,84 @@ private fun SyncSummaryCard(
     val pending = state.pendingOrderCount
     val synced = state.orders.count { it.syncState == OrderSyncState.SYNCED }
 
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-    ) {
-        Column(
-            modifier = Modifier.padding(PosSpacing.md).animateContentSize(),
-            verticalArrangement = Arrangement.spacedBy(PosSpacing.sm),
+    PosCard(modifier = modifier.animateContentSize()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(PosSpacing.md),
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(PosSpacing.md),
-            ) {
-                SummaryStat(label = "Pending", value = pending.toString())
-                VerticalRule()
-                SummaryStat(label = "Synced", value = synced.toString())
-                VerticalRule()
-                SummaryStat(
-                    label = "Connection",
-                    value = if (state.isOnline) "Online" else "Offline",
-                    icon =
-                        if (state.isOnline) Icons.Outlined.CloudDone else Icons.Outlined.CloudOff,
-                    valueColor =
-                        if (state.isOnline) {
-                            MaterialTheme.statusColors.success
-                        } else {
-                            MaterialTheme.statusColors.warning
-                        },
+            SummaryStat(label = "Pending", value = pending.toString())
+            StatDivider()
+            SummaryStat(label = "Synced", value = synced.toString())
+            StatDivider()
+            SummaryStat(
+                label = "Connection",
+                value = if (state.isOnline) "Online" else "Offline",
+                icon = if (state.isOnline) Icons.Outlined.CloudDone else Icons.Outlined.CloudOff,
+                valueColor =
+                    if (state.isOnline) {
+                        MaterialTheme.statusColors.success
+                    } else {
+                        MaterialTheme.statusColors.warning
+                    },
+            )
+        }
+
+        HorizontalDivider(
+            modifier = Modifier.padding(top = PosSpacing.xs),
+            color = MaterialTheme.colorScheme.outlineVariant,
+        )
+
+        Button(
+            onClick = onSyncNow,
+            enabled = state.isOnline && pending > 0 && !state.isSyncing,
+            modifier = Modifier.fillMaxWidth().heightIn(min = PosSpacing.touchTarget),
+        ) {
+            if (state.isSyncing) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(18.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Filled.Sync,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
                 )
             }
-
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-
-            Button(
-                onClick = onSyncNow,
-                enabled = state.isOnline && pending > 0 && !state.isSyncing,
-                modifier = Modifier.fillMaxWidth().heightIn(min = PosSpacing.touchTarget),
-            ) {
-                if (state.isSyncing) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(18.dp),
-                        strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                    )
-                    Text(text = "Syncing", modifier = Modifier.padding(start = PosSpacing.sm))
-                } else {
-                    Icon(
-                        imageVector = Icons.Filled.Sync,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp),
-                    )
-                    Text(text = "Sync now", modifier = Modifier.padding(start = PosSpacing.sm))
-                }
-            }
-
-            SyncHint(isOnline = state.isOnline, isSyncing = state.isSyncing, pending = pending)
+            Text(
+                text = if (state.isSyncing) "Syncing" else "Sync now",
+                modifier = Modifier.padding(start = PosSpacing.sm),
+            )
         }
+
+        Text(
+            text = syncHint(state.isOnline, state.isSyncing, pending),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
 /** Says why the button is in the state it is in, so a disabled button is never a dead end. */
-@Composable
-private fun SyncHint(isOnline: Boolean, isSyncing: Boolean, pending: Int) {
-    val message =
-        when {
-            isSyncing -> "Sending orders to the backend..."
-            !isOnline && pending > 0 ->
-                "Offline — $pending order(s) are saved here and will sync automatically once " +
-                    "you switch back online."
+private fun syncHint(isOnline: Boolean, isSyncing: Boolean, pending: Int): String =
+    when {
+        isSyncing -> "Sending orders to the backend..."
+        !isOnline && pending > 0 ->
+            "Offline — $pending order(s) are saved here and will sync automatically once you " +
+                "switch back online."
 
-            !isOnline -> "Offline — nothing is waiting to sync."
-            pending > 0 -> "$pending order(s) ready to send."
-            else -> "Everything is synced."
-        }
-
-    Text(
-        text = message,
-        style = MaterialTheme.typography.labelMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
-}
+        !isOnline -> "Offline — nothing is waiting to sync."
+        pending > 0 -> "$pending order(s) ready to send."
+        else -> "Everything is synced."
+    }
 
 @Composable
 private fun SummaryStat(
     label: String,
     value: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
-    valueColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurface,
+    icon: ImageVector? = null,
+    valueColor: Color = MaterialTheme.colorScheme.onSurface,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(PosSpacing.xs)) {
         Text(
@@ -218,9 +237,9 @@ private fun SummaryStat(
 }
 
 @Composable
-private fun VerticalRule() {
+private fun StatDivider() {
     Surface(
-        modifier = Modifier.width(1.dp).height(36.dp),
+        modifier = Modifier.width(1.dp).height(32.dp),
         color = MaterialTheme.colorScheme.outlineVariant,
         content = {},
     )
@@ -228,140 +247,55 @@ private fun VerticalRule() {
 
 @Composable
 private fun OrderCard(order: Order, modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-    ) {
-        Column(
-            modifier = Modifier.padding(PosSpacing.md).animateContentSize(),
-            verticalArrangement = Arrangement.spacedBy(PosSpacing.sm),
+    PosCard(modifier = modifier.animateContentSize()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = orderReference(order.id),
-                    style = MaterialTheme.typography.titleSmall,
-                )
-                SyncStatusChip(order = order)
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Bottom,
-            ) {
-                Text(
-                    text =
-                        "${formatOrderTime(order.createdAtEpochMillis)} · " +
-                            if (order.itemCount == 1) "1 item" else "${order.itemCount} items",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Text(
-                    text = formatMoney(order.totals.totalCents),
-                    style = MaterialTheme.typography.titleMedium,
-                )
-            }
-
-            AnimatedVisibility(
-                visible = order.syncState == OrderSyncState.FAILED && order.lastError != null,
-                enter = fadeIn(),
-                exit = fadeOut(),
-            ) {
-                RetryNotice(error = order.lastError.orEmpty(), attempts = order.attemptCount)
-            }
-
-            if (order.syncState == OrderSyncState.SYNCED) {
-                Text(
-                    text =
-                        buildString {
-                            append("Synced")
-                            order.syncedAtEpochMillis?.let { append(" ${formatOrderTime(it)}") }
-                            if (order.attemptCount > 1) {
-                                append(" after ${order.attemptCount} attempts")
-                            }
-                        },
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+            Text(text = orderReference(order.id), style = MaterialTheme.typography.titleSmall)
+            SyncStatusChip(order = order)
         }
-    }
-}
 
-/** Shown only for an order whose last attempt failed: what happened, and that nothing was lost. */
-@Composable
-private fun RetryNotice(error: String, attempts: Int) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.statusColors.warningContainer,
-        contentColor = MaterialTheme.statusColors.onWarningContainer,
-    ) {
-        Column(
-            modifier = Modifier.padding(PosSpacing.sm),
-            verticalArrangement = Arrangement.spacedBy(PosSpacing.xs),
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Bottom,
         ) {
-            Text(
-                text = "Last attempt failed: $error",
-                style = MaterialTheme.typography.labelMedium,
-            )
             Text(
                 text =
-                    "The sale is saved on this device. Sync now to retry — it will not be " +
-                        "charged twice.",
-                style = MaterialTheme.typography.labelMedium,
-            )
-            if (attempts > 0) {
-                Text(
-                    text = if (attempts == 1) "1 attempt" else "$attempts attempts",
-                    style = MaterialTheme.typography.labelMedium,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun NoOrders(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier.fillMaxSize().padding(PosSpacing.xl),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(PosSpacing.sm),
-        ) {
-            Surface(
-                modifier = Modifier.size(72.dp),
-                shape = MaterialTheme.shapes.extraLarge,
-                color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.ReceiptLong,
-                        contentDescription = null,
-                        modifier = Modifier.size(32.dp),
-                    )
-                }
-            }
-            Text(
-                text = "No sales yet",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(top = PosSpacing.sm),
-            )
-            Text(
-                text = "Completed sales are stored on this device and listed here with their sync state.",
+                    "${formatOrderTime(order.createdAtEpochMillis)} · " +
+                        if (order.itemCount == 1) "1 item" else "${order.itemCount} items",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
+            )
+            MoneyText(
+                cents = order.totals.totalCents,
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
+
+        AnimatedVisibility(
+            visible = order.syncState == OrderSyncState.FAILED && order.lastError != null,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically(),
+        ) {
+            PosBanner(tone = BannerTone.Warning, icon = Icons.Outlined.ErrorOutline) {
+                Text("Saved here — the backend replied \"${order.lastError.orEmpty()}\".")
+                Text("Sync now to retry. It cannot be charged twice.")
+            }
+        }
+
+        if (order.syncState == OrderSyncState.SYNCED) {
+            Text(
+                text =
+                    buildString {
+                        append("Synced")
+                        order.syncedAtEpochMillis?.let { append(" ${formatOrderTime(it)}") }
+                        if (order.attemptCount > 1) append(" after ${order.attemptCount} attempts")
+                    },
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

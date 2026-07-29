@@ -2,14 +2,15 @@ package com.example.pos.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -24,10 +25,11 @@ import androidx.compose.ui.unit.dp
 import com.example.pos.ui.theme.PosSpacing
 
 /**
- * Compact minus / quantity / plus control.
+ * Compact minus / quantity / plus control, used identically in the catalog and the cart.
  *
- * Both buttons are full 48dp targets even though the icons are small, and the minus turns into a
- * delete icon at one unit so the last tap reads as "remove", not "go to zero".
+ * Both buttons are full 48dp targets even though the glyphs are small, and the minus becomes a
+ * delete icon at one unit so the last tap reads as "remove", not "go to zero". The count sits in
+ * a fixed-width slot with tabular figures so the control does not jitter between 9 and 10.
  */
 @Composable
 fun QuantityStepper(
@@ -39,12 +41,13 @@ fun QuantityStepper(
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        modifier = modifier.defaultMinSize(minHeight = PosSpacing.touchTarget),
+        modifier = modifier.heightIn(min = PosSpacing.touchTarget),
         shape = RoundedCornerShape(percent = 50),
         color = MaterialTheme.colorScheme.surfaceContainerHighest,
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) {
         Row(
+            modifier = Modifier.padding(horizontal = PosSpacing.xs),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
@@ -57,7 +60,8 @@ fun QuantityStepper(
                     ),
             ) {
                 Icon(
-                    imageVector = if (quantity > 1) Icons.Filled.Remove else Icons.Filled.Delete,
+                    imageVector =
+                        if (quantity > 1) Icons.Filled.Remove else Icons.Outlined.DeleteOutline,
                     contentDescription =
                         if (quantity > 1) {
                             "Remove one $productName"
@@ -70,9 +74,11 @@ fun QuantityStepper(
 
             Text(
                 text = quantity.toString(),
-                style = MaterialTheme.typography.titleMedium,
+                style =
+                    MaterialTheme.typography.titleMedium.copy(fontFeatureSettings = "tnum"),
                 textAlign = TextAlign.Center,
-                modifier = Modifier.widthIn(min = 24.dp),
+                maxLines = 1,
+                modifier = Modifier.widthIn(min = 28.dp).padding(horizontal = PosSpacing.xs),
             )
 
             IconButton(

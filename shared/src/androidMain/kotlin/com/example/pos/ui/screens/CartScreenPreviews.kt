@@ -70,3 +70,15 @@ private fun CartOfflinePreview() {
 private fun CartCheckingOutPreview() {
     PreviewCart(PosUiState(cart = DiscountedCart, isCheckingOut = true))
 }
+
+@Preview(name = "Cart - large font scale", showBackground = true, fontScale = 1.5f)
+@Composable
+private fun CartLargeFontPreview() {
+    PreviewCart(PosUiState(cart = DiscountedCart))
+}
+
+@Preview(name = "Cart - small phone", showBackground = true, widthDp = 320, heightDp = 640)
+@Composable
+private fun CartSmallScreenPreview() {
+    PreviewCart(PosUiState(cart = DiscountedCart, isOnline = false))
+}
