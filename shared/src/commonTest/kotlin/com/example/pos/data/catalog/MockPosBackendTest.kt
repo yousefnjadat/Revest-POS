@@ -17,7 +17,7 @@ import kotlinx.coroutines.test.runTest
 class MockPosBackendTest {
     private val repository =
         DefaultCatalogRepository(
-            api = KtorCatalogApi(MockPosBackend.createClient()),
+            api = KtorCatalogApi(MockPosBackend().createClient()),
             dispatcher = Dispatchers.Unconfined,
         )
 
@@ -72,7 +72,7 @@ class MockPosBackendTest {
         // The fake backend is route-aware rather than answering every request with the catalog.
         val failure =
             assertFailsWith<ClientRequestException> {
-                MockPosBackend.createClient().get("$POS_BASE_URL/nope")
+                MockPosBackend().createClient().get("$POS_BASE_URL/nope")
             }
 
         assertEquals(HttpStatusCode.NotFound, failure.response.status)
