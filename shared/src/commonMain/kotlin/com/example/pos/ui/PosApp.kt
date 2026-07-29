@@ -80,6 +80,9 @@ fun PosApp(viewModel: PosViewModel = koinViewModel()) {
                             onDecrease = viewModel::decreaseProduct,
                             onRemove = viewModel::removeProduct,
                             onCheckout = viewModel::checkout,
+                            onBrowseCatalog = {
+                                viewModel.selectDestination(AppDestination.CATALOG)
+                            },
                         )
 
                     AppDestination.ORDERS ->
