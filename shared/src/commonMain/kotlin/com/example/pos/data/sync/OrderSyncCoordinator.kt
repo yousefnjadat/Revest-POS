@@ -41,19 +41,6 @@ internal class OrderSyncCoordinator(
     val isSyncing: StateFlow<Boolean> = _isSyncing.asStateFlow()
 
     /**
-     * Persists [order] locally, then syncs it when [isOnline]. The local write always happens
-     * first, so an order survives even if the network attempt never gets the chance to run.
-     */
-    suspend fun checkout(order: Order, isOnline: Boolean) {
-        orders.save(order)
-        if (isOnline) {
-            sync(SyncTrigger.CHECKOUT)
-        } else {
-            log("order ${order.id.take(8)} stored offline, sync deferred")
-        }
-    }
-
-    /**
      * Sends every unsynced order, oldest first. A run that overlaps another is skipped rather
      * than queued: the run already in flight will pick up the same backlog.
      */

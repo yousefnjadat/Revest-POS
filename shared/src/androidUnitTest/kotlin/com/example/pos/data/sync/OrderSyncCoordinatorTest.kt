@@ -58,32 +58,19 @@ class OrderSyncCoordinatorTest {
     }
 
     @Test
-    fun checkoutStoresTheOrderBeforeAnyNetworkAttempt() = runTest {
-        val order = orderOf("order-1")
+    fun anOrderIsOnlySentAfterItIsAlreadyInTheDatabase() = runTest {
         var wasStoredWhenTheRequestWasMade = false
         val api =
             OrderSyncApi { submitted ->
                 wasStoredWhenTheRequestWasMade = repository.findById(submitted.id) != null
                 SyncAcknowledgement(submitted.id, duplicate = false)
             }
+        repository.save(orderOf("order-1"))
 
-        coordinator(api).checkout(order, isOnline = true)
+        coordinator(api).sync(SyncTrigger.CHECKOUT)
 
         assertTrue(wasStoredWhenTheRequestWasMade, "the order must be persisted before syncing")
         assertEquals(OrderSyncState.SYNCED, assertNotNull(repository.findById("order-1")).syncState)
-    }
-
-    @Test
-    fun checkingOutOfflineStoresLocallyAndNeverCallsTheBackend() = runTest {
-        val backend = MockPosBackend(TransientFailureMode.None)
-
-        coordinator(backend).checkout(orderOf("order-1"), isOnline = false)
-
-        val stored = assertNotNull(repository.findById("order-1"))
-        assertEquals(OrderSyncState.PENDING, stored.syncState)
-        assertNull(stored.syncedAtEpochMillis)
-        assertTrue(backend.orderRequests.isEmpty())
-        assertTrue(logs.any { it.contains("stored offline") }, logs.toString())
     }
 
     @Test
@@ -222,7 +209,7 @@ class OrderSyncCoordinatorTest {
 
         coordinator.sync(SyncTrigger.MANUAL)
         coordinator.sync(SyncTrigger.CAME_ONLINE)
-        coordinator.checkout(orderOf("order-1"), isOnline = true)
+        coordinator.sync(SyncTrigger.CHECKOUT)
 
         assertTrue(logs.any { it.contains("manual trigger") }, logs.toString())
         assertTrue(logs.any { it.contains("changed to online") }, logs.toString())

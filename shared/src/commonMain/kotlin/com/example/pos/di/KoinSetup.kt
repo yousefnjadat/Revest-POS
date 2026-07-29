@@ -12,10 +12,12 @@ import com.example.pos.data.order.OrderSyncApi
 import com.example.pos.data.remote.MockPosBackend
 import com.example.pos.data.sync.OrderSyncCoordinator
 import com.example.pos.db.PosDatabase
+import com.example.pos.presentation.PosViewModel
 import io.ktor.client.HttpClient
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
+import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 /**
@@ -38,6 +40,8 @@ val appModule: Module =
 
         single<OrderSyncApi> { KtorOrderSyncApi(get()) }
         single { OrderSyncCoordinator(orders = get(), api = get()) }
+
+        viewModel { PosViewModel(catalog = get(), orders = get(), sync = get()) }
     }
 
 fun initKoin(appDeclaration: KoinApplication.() -> Unit = {}): KoinApplication =
