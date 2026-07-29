@@ -31,6 +31,7 @@ class PosViewModelTest {
     private lateinit var catalog: FakeCatalogRepository
     private lateinit var orders: FakeOrderRepository
     private lateinit var api: FakeOrderSyncApi
+    private val syncLogs = mutableListOf<String>()
 
     @BeforeTest
     fun setUp() {
@@ -38,6 +39,7 @@ class PosViewModelTest {
         catalog = FakeCatalogRepository()
         orders = FakeOrderRepository()
         api = FakeOrderSyncApi()
+        syncLogs.clear()
     }
 
     @AfterTest
@@ -381,6 +383,37 @@ class PosViewModelTest {
     }
 
     @Test
+    fun everySyncTheViewModelStartsSaysWhyItStarted() = runTest(mainDispatcher) {
+        val viewModel = readyViewModel()
+
+        viewModel.addProduct("mug")
+        viewModel.checkout()
+        advanceUntilIdle()
+        assertTrue(
+            syncLogs.any { it.contains("checkout while online") },
+            "checkout should log its trigger: $syncLogs",
+        )
+
+        viewModel.setOnline(false)
+        viewModel.setOnline(true)
+        advanceUntilIdle()
+        assertTrue(
+            syncLogs.any { it.contains("changed to online") },
+            "reconnecting should log its trigger: $syncLogs",
+        )
+
+        viewModel.addProduct("muffin")
+        viewModel.checkout()
+        advanceUntilIdle()
+        viewModel.syncNow()
+        advanceUntilIdle()
+        assertTrue(
+            syncLogs.any { it.contains("manual trigger") },
+            "a manual sync should log its trigger: $syncLogs",
+        )
+    }
+
+    @Test
     fun syncProgressIsReflectedInState() = runTest(mainDispatcher) {
         val viewModel = readyViewModel()
         val gate = CompletableDeferred<Unit>()
@@ -411,7 +444,7 @@ class PosViewModelTest {
                     orders = orders,
                     api = api,
                     now = { syncedAtMillis },
-                    log = {},
+                    log = { syncLogs += it },
                 ),
             now = { checkoutMillis },
             newOrderId = { "order-${++issued}" },

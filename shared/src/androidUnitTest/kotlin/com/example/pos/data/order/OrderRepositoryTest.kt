@@ -7,6 +7,7 @@ import com.example.pos.domain.Order
 import com.example.pos.domain.OrderSyncState
 import com.example.pos.domain.Product
 import com.example.pos.domain.toOrder
+import kotlin.coroutines.CoroutineContext
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -14,6 +15,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
@@ -155,6 +157,35 @@ class OrderRepositoryTest {
     @Test
     fun anUnknownOrderIdIsSimplyMissing() = runTest {
         assertNull(repository.findById("nope"))
+    }
+
+    /**
+     * SQLite calls block. This checks they are handed to the injected dispatcher rather than run
+     * inline on the caller — which on Android is the main thread.
+     */
+    @Test
+    fun databaseWorkIsDispatchedAwayFromTheCaller() = runTest {
+        val dispatcher = CountingDispatcher()
+        val dispatched =
+            DefaultOrderRepository(OrderLocalDataSource(PosDatabase(driver), dispatcher))
+
+        dispatched.save(orderOf("order-1"))
+        assertNotNull(dispatched.findById("order-1"))
+
+        assertTrue(
+            dispatcher.dispatchCount >= 2,
+            "each database call should hop onto the I/O dispatcher, saw ${dispatcher.dispatchCount}",
+        )
+    }
+
+    private class CountingDispatcher : CoroutineDispatcher() {
+        var dispatchCount = 0
+            private set
+
+        override fun dispatch(context: CoroutineContext, block: Runnable) {
+            dispatchCount++
+            Dispatchers.Default.dispatch(context, block)
+        }
     }
 
     private fun orderOf(

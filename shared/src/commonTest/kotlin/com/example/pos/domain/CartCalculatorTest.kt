@@ -80,6 +80,37 @@ class CartCalculatorTest {
     }
 
     @Test
+    fun subtotalOneCentAboveTheThresholdIsAlsoDiscounted() {
+        val lines = listOf(CartLine(product(priceCents = 5_001, taxable = false), quantity = 1))
+
+        val totals = CartCalculator.totals(lines)
+
+        assertEquals(5_001, totals.subtotalCents)
+        // 5% of 50.01 is 2.5005, which rounds down to 2.50.
+        assertEquals(250, totals.discountCents)
+        assertTrue(totals.discountApplied)
+        assertEquals(4_751, totals.totalCents)
+    }
+
+    @Test
+    fun theThresholdIsCrossedByTheWholeSubtotalNotTheTaxableParts() {
+        // Neither line reaches 50 on its own, and the taxable part is only 20.
+        val lines =
+            listOf(
+                CartLine(product(id = "taxed", priceCents = 2_000, taxable = true), quantity = 1),
+                CartLine(product(id = "exempt", priceCents = 3_000, taxable = false), quantity = 1),
+            )
+
+        val totals = CartCalculator.totals(lines)
+
+        assertEquals(5_000, totals.subtotalCents)
+        assertEquals(2_000, totals.taxableSubtotalCents)
+        assertEquals(200, totals.taxCents)
+        assertEquals(250, totals.discountCents)
+        assertEquals(4_950, totals.totalCents)
+    }
+
+    @Test
     fun subtotalAboveFiftyGetsTheDiscountOnTopOfTax() {
         val lines = listOf(CartLine(product(priceCents = 6_000, taxable = true), quantity = 1))
 
