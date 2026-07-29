@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -107,15 +108,17 @@ class PosViewModel internal constructor(
      * network attempt afterwards must never hold up the cashier or the next customer.
      */
     fun checkout() {
-        val current = _state.value
+        // Claim the checkout before doing anything else: a second tap must not be able to start a
+        // second sale for the same cart, whichever dispatcher this runs on.
+        val current = _state.getAndUpdate { it.copy(isCheckingOut = true) }
         if (current.isCheckingOut) return
         if (current.cart.isEmpty) {
+            _state.update { it.copy(isCheckingOut = false) }
             notify("Add something to the cart first")
             return
         }
 
         viewModelScope.launch {
-            _state.update { it.copy(isCheckingOut = true) }
             val order =
                 current.cart.toOrder(id = newOrderId(), createdAtEpochMillis = now())
 

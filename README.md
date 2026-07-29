@@ -264,7 +264,7 @@ Filter the log with `adb logcat -s System.out:I | grep POS`.
 - **Sync retries only when triggered** — no backoff, no scheduler, no background work.
 - **The per-order `SYNCING` chip appears only in previews.** An in-flight attempt is runtime state
   and is deliberately not persisted, so progress is shown app-wide (progress bar, button spinner).
-- **No instrumented or screenshot tests**; UI states are covered by 18 `@Preview` composables and
+- **No instrumented or screenshot tests**; UI states are covered by 22 `@Preview` composables and
   manual verification.
 - Compose previews and large-font behaviour were checked in Android Studio and via preview
   parameters, not on a device font-scale sweep.

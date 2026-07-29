@@ -14,8 +14,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.pos.domain.Product
@@ -84,15 +84,17 @@ fun ProductCard(
                 quantityInCart == 0 ->
                     Button(
                         onClick = onAdd,
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .heightIn(min = PosSpacing.touchTarget)
-                                .clearAndSetSemantics {
+                        modifier = Modifier.fillMaxWidth().heightIn(min = PosSpacing.touchTarget),
+                    ) {
+                        // The description goes on the label, not on the Button: clearing the
+                        // button's own semantics would take its click action with it.
+                        Text(
+                            text = "Add",
+                            modifier =
+                                Modifier.semantics {
                                     contentDescription = "Add ${product.name} to the cart"
                                 },
-                    ) {
-                        Text("Add")
+                        )
                     }
 
                 else ->
