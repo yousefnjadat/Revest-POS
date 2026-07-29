@@ -24,7 +24,7 @@ Android is the only launcher target; all logic and UI live in the `shared` modul
 ## 2. Assignment requirements and where they live
 
 | Requirement | Implementation |
-| --- | --- |
+
 | Product catalog | `data/catalog/`, `ui/screens/CatalogScreen.kt` |
 | Add / remove from cart | `domain/Cart.kt`, `presentation/PosViewModel.kt` |
 | Quantity changes respecting stock | `domain/Cart.kt`, `domain/CartLine.kt` |
@@ -124,7 +124,6 @@ If the local write itself fails, the cart is kept and the message says nothing w
 Sync is triggered by exactly three things, each logged with its reason:
 
 | Trigger | Log line |
-| --- | --- |
 | Cashier presses Sync now | `sync requested (manual trigger)` |
 | Offline → Online transition | `sync requested (changed to online)` |
 | Checkout while already online | `sync requested (checkout while online)` |

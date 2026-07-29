@@ -8,7 +8,6 @@ captures/
 # Kotlin
 .kotlin/
 
-# Local machine configuration — never commit
 local.properties
 
 # IDE
