@@ -27,6 +27,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,7 +43,6 @@ import com.example.pos.ui.components.ProductCard
 import com.example.pos.ui.components.ScreenHeader
 import com.example.pos.ui.theme.PosSpacing
 
-/** Below this width a two-column grid squeezes product names into unreadable stacks. */
 private val GRID_MIN_WIDTH = 360.dp
 
 @Composable
@@ -89,6 +89,8 @@ fun CatalogScreen(
                 ProductCollection(
                     products = catalog.products,
                     quantityOf = state.cart::quantityOf,
+                    isRefreshing = state.catalog == CatalogUiState.Loading,
+                    onRefresh = onRetry,
                     onAddProduct = onAddProduct,
                     onDecreaseProduct = onDecreaseProduct,
                     modifier = Modifier.weight(1f),
@@ -104,6 +106,8 @@ fun CatalogScreen(
 private fun ProductCollection(
     products: List<Product>,
     quantityOf: (String) -> Int,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
     onAddProduct: (String) -> Unit,
     onDecreaseProduct: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -117,41 +121,51 @@ private fun ProductCollection(
             )
 
         if (maxWidth >= GRID_MIN_WIDTH) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                contentPadding = contentPadding,
-                horizontalArrangement = Arrangement.spacedBy(PosSpacing.sm),
-                verticalArrangement = Arrangement.spacedBy(PosSpacing.sm),
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh,
+                modifier = modifier
             ) {
-                items(items = products, key = { it.id }) { product ->
-                    ProductCard(
-                        product = product,
-                        quantityInCart = quantityOf(product.id),
-                        onAdd = { onAddProduct(product.id) },
-                        onDecrease = { onDecreaseProduct(product.id) },
-                    )
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    contentPadding = contentPadding,
+                    horizontalArrangement = Arrangement.spacedBy(PosSpacing.sm),
+                    verticalArrangement = Arrangement.spacedBy(PosSpacing.sm),
+                ) {
+                    items(items = products, key = { it.id }) { product ->
+                        ProductCard(
+                            product = product,
+                            quantityInCart = quantityOf(product.id),
+                            onAdd = { onAddProduct(product.id) },
+                            onDecrease = { onDecreaseProduct(product.id) },
+                        )
+                    }
                 }
             }
         } else {
-            // Too narrow for two readable columns — one card per row instead.
-            LazyColumn(
-                contentPadding = contentPadding,
-                verticalArrangement = Arrangement.spacedBy(PosSpacing.sm),
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh,
+                modifier = modifier
             ) {
-                items(items = products, key = { it.id }) { product ->
-                    ProductCard(
-                        product = product,
-                        quantityInCart = quantityOf(product.id),
-                        onAdd = { onAddProduct(product.id) },
-                        onDecrease = { onDecreaseProduct(product.id) },
-                    )
+                LazyColumn(
+                    contentPadding = contentPadding,
+                    verticalArrangement = Arrangement.spacedBy(PosSpacing.sm),
+                ) {
+                    items(items = products, key = { it.id }) { product ->
+                        ProductCard(
+                            product = product,
+                            quantityInCart = quantityOf(product.id),
+                            onAdd = { onAddProduct(product.id) },
+                            onDecrease = { onDecreaseProduct(product.id) },
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-/** Static placeholder cards. No shimmer — a still skeleton reads as loading without flicker. */
 @Composable
 private fun CatalogSkeleton(modifier: Modifier = Modifier) {
     Column(
@@ -190,7 +204,6 @@ private fun SkeletonBlock(width: Dp, height: Dp) {
     )
 }
 
-/** Sits directly above the bottom bar, so the running total is visible while browsing. */
 @Composable
 private fun CartSummaryBar(itemCount: Int, totalCents: Long) {
     AnimatedVisibility(

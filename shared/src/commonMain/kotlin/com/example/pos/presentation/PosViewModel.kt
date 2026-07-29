@@ -22,13 +22,6 @@ import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/**
- * The single view model behind every screen. One cart, one catalog, and one order history are
- * shared across destinations, so splitting them apart would mean synchronising them again.
- *
- * All work runs in [viewModelScope]; repositories move their own blocking work off the main
- * thread, so nothing here needs a dispatcher of its own.
- */
 class PosViewModel internal constructor(
     private val catalog: CatalogRepository,
     private val orders: OrderRepository,
@@ -39,10 +32,6 @@ class PosViewModel internal constructor(
     private val _state = MutableStateFlow(PosUiState())
     val state: StateFlow<PosUiState> = _state.asStateFlow()
 
-    /**
-     * One-shot messages. A small [SharedFlow] rather than an effect framework: a replay of 0 and
-     * a little buffer is all a snackbar needs.
-     */
     private val _messages = MutableSharedFlow<UserMessage>(extraBufferCapacity = 8)
     val messages: SharedFlow<UserMessage> = _messages.asSharedFlow()
 
@@ -103,13 +92,7 @@ class PosViewModel internal constructor(
         _state.update { it.copy(cart = it.cart.remove(productId)) }
     }
 
-    /**
-     * Persist first, then sync. The sale is complete once the order is in the database — the
-     * network attempt afterwards must never hold up the cashier or the next customer.
-     */
     fun checkout() {
-        // Claim the checkout before doing anything else: a second tap must not be able to start a
-        // second sale for the same cart, whichever dispatcher this runs on.
         val current = _state.getAndUpdate { it.copy(isCheckingOut = true) }
         if (current.isCheckingOut) return
         if (current.cart.isEmpty) {
@@ -131,8 +114,6 @@ class PosViewModel internal constructor(
                 notify("Couldn't save the order — nothing was charged.", UserMessage.Tone.Error)
                 return@launch
             }
-
-            // Land on Orders so the cashier immediately sees the sale and how its sync is going.
             _state.update {
                 it.copy(
                     cart = it.cart.clear(),
@@ -150,7 +131,6 @@ class PosViewModel internal constructor(
         }
     }
 
-    /** Flipping from offline to online is the only edge that starts a sync. */
     fun setOnline(isOnline: Boolean) {
         val cameOnline = isOnline && !_state.value.isOnline
         _state.update { it.copy(isOnline = isOnline) }

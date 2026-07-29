@@ -22,16 +22,8 @@ import com.example.pos.domain.Product
 import com.example.pos.ui.theme.PosSpacing
 import com.example.pos.ui.theme.statusColors
 
-/** Stock at or below this many units is called out rather than stated flatly. */
 private const val LOW_STOCK_THRESHOLD = 3
 
-/**
- * One catalog product. No remote images — a tinted monogram identifies the product, which keeps
- * the card fast, offline-safe, and free of an image loading library.
- *
- * The name block has a minimum height so prices and buttons line up across a grid row, but it
- * grows rather than clipping when the font scale is turned up.
- */
 @Composable
 fun ProductCard(
     product: Product,
@@ -76,7 +68,9 @@ fun ProductCard(
                     Button(
                         onClick = {},
                         enabled = false,
-                        modifier = Modifier.fillMaxWidth().heightIn(min = PosSpacing.touchTarget),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = PosSpacing.touchTarget),
                     ) {
                         Text("Out of stock")
                     }
@@ -84,10 +78,10 @@ fun ProductCard(
                 quantityInCart == 0 ->
                     Button(
                         onClick = onAdd,
-                        modifier = Modifier.fillMaxWidth().heightIn(min = PosSpacing.touchTarget),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = PosSpacing.touchTarget),
                     ) {
-                        // The description goes on the label, not on the Button: clearing the
-                        // button's own semantics would take its click action with it.
                         Text(
                             text = "Add",
                             modifier =
@@ -172,7 +166,6 @@ private fun StockLabel(stock: Int, atStockLimit: Boolean) {
     )
 }
 
-/** First letters of the first two words, e.g. "Travel Flask 500ml" becomes "TF". */
 private fun String.monogram(): String =
     trim()
         .split(' ')

@@ -180,7 +180,6 @@ private fun CartLineCard(
     }
 }
 
-/** Totals, the offline notice, and the checkout action, docked together above the nav bar. */
 @Composable
 private fun CheckoutSection(
     state: PosUiState,

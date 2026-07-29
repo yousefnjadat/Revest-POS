@@ -35,7 +35,6 @@ fun PosTheme(
     }
 }
 
-/** Success and warning colours, reached the same way as `MaterialTheme.colorScheme`. */
 val MaterialTheme.statusColors: PosStatusColors
     @Composable @ReadOnlyComposable
     get() = LocalPosStatusColors.current

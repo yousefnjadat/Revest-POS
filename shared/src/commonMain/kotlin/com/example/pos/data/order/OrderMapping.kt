@@ -7,10 +7,7 @@ import com.example.pos.domain.OrderSyncState
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-/**
- * The stored shape of an order's line items. Kept separate from the domain model so a future
- * domain change cannot silently reinterpret rows already written to disk.
- */
+
 @Serializable
 internal data class OrderPayload(
     val lines: List<OrderLinePayload>,
@@ -54,16 +51,6 @@ internal fun decodeLines(payload: String): List<OrderLine> =
         )
     }
 
-/**
- * Rebuilds an [Order] from one `pending_orders` row.
- *
- * The sync state is derived rather than stored — `synced_at` and `last_error` already say
- * everything a persisted row can say. [OrderSyncState.SYNCING] is deliberately not representable
- * here: an in-flight attempt is runtime state, not something that should survive a process death.
- *
- * The taxable subtotal is recomputed from the stored lines instead of occupying its own column,
- * which keeps the schema to the columns the app actually queries.
- */
 @Suppress("LongParameterList")
 internal fun orderFromRow(
     id: String,

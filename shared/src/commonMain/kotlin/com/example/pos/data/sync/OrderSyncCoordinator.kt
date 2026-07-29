@@ -13,20 +13,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.sync.Mutex
 
-/** What one sync run did. [skipped] means another run already held the lock. */
 internal data class SyncOutcome(
     val syncedCount: Int = 0,
     val failedCount: Int = 0,
     val skipped: Boolean = false,
 )
 
-/**
- * Pushes locally stored orders to the backend, one at a time.
- *
- * This class knows nothing about connectivity — the caller decides whether the app is online and
- * only then asks for a sync. What it does own is that a checkout is written to the database
- * *before* any network call, and that two overlapping triggers never run the loop twice.
- */
+
 internal class OrderSyncCoordinator(
     private val orders: OrderRepository,
     private val api: OrderSyncApi,
@@ -36,13 +29,8 @@ internal class OrderSyncCoordinator(
     private val mutex = Mutex()
     private val _isSyncing = MutableStateFlow(false)
 
-    /** True while a sync run is in flight, for the syncing indicator in the UI. */
     val isSyncing: StateFlow<Boolean> = _isSyncing.asStateFlow()
 
-    /**
-     * Sends every unsynced order, oldest first. A run that overlaps another is skipped rather
-     * than queued: the run already in flight will pick up the same backlog.
-     */
     suspend fun sync(trigger: SyncTrigger): SyncOutcome {
         log("sync requested (${trigger.label})")
 
@@ -74,7 +62,6 @@ internal class OrderSyncCoordinator(
         }
     }
 
-    /** Returns true when the backend accepted the order. One order failing never stops the run. */
     private suspend fun submit(order: Order): Boolean {
         val shortId = order.id.take(8)
         orders.recordSyncAttempt(order.id)
@@ -95,7 +82,6 @@ internal class OrderSyncCoordinator(
     }
 }
 
-/** A short, storable reason. Kept to one line so the Orders screen can show it as-is. */
 internal fun Throwable.toSyncErrorMessage(): String =
     when (this) {
         is ResponseException -> "Server responded ${response.status.value}"

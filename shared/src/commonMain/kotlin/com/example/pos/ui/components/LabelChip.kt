@@ -19,10 +19,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.dp
 import com.example.pos.ui.theme.PosSpacing
 
-/**
- * The single small-label component: tax badges, sync status, anything that annotates a card.
- * One shape, one text style, one padding, so labels never drift apart across screens.
- */
 @Composable
 fun LabelChip(
     text: String,

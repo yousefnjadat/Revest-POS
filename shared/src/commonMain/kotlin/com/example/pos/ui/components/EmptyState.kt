@@ -21,11 +21,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.pos.ui.theme.PosSpacing
 
-/**
- * Every "nothing here" and "that didn't work" moment uses this: a tinted icon tile, one line of
- * what happened, one line of what to do, and an optional action. Same rhythm on every screen,
- * built from Material icons alone — no illustration assets.
- */
 @Composable
 fun EmptyState(
     icon: ImageVector,

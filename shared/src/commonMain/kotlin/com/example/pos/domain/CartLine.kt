@@ -1,11 +1,5 @@
 package com.example.pos.domain
 
-/**
- * One product and the quantity the cashier has rung up.
- *
- * A line always holds at least one unit — dropping to zero removes the line from the [Cart] —
- * and never more units than the product has in stock.
- */
 data class CartLine(
     val product: Product,
     val quantity: Int,

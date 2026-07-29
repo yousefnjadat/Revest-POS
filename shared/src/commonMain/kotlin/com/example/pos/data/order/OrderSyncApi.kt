@@ -39,13 +39,11 @@ internal data class OrderAcceptedDto(
     val duplicate: Boolean,
 )
 
-/** [duplicate] is true when the backend had already accepted this order id. */
 internal data class SyncAcknowledgement(
     val orderId: String,
     val duplicate: Boolean,
 )
 
-/** Submits checked-out orders to the backend. Throws when the request is not accepted. */
 internal interface OrderSyncApi {
     suspend fun submit(order: Order): SyncAcknowledgement
 }
@@ -57,8 +55,6 @@ internal class KtorOrderSyncApi(
         val accepted =
             client
                 .post("$POS_BASE_URL/orders") {
-                    // The order UUID travels twice on purpose: the header is what an API gateway
-                    // or proxy would deduplicate on, the body is what the service itself stores.
                     header(IDEMPOTENCY_KEY_HEADER, order.id)
                     contentType(ContentType.Application.Json)
                     setBody(order.toRequestDto())

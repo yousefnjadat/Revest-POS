@@ -13,12 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.pos.ui.theme.PosSpacing
 
-/**
- * The one card in this app: 16dp corners, a hairline outline, no elevation.
- *
- * A single container keeps product, cart, order, and summary cards identical, and flat surfaces
- * with a border read cleaner on a retail screen than stacked shadows.
- */
 @Composable
 fun PosCard(
     modifier: Modifier = Modifier,

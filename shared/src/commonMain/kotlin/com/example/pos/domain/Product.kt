@@ -1,6 +1,5 @@
 package com.example.pos.domain
 
-/** A sellable item in the catalog. [priceCents] is the unit price in minor units. */
 data class Product(
     val id: String,
     val name: String,

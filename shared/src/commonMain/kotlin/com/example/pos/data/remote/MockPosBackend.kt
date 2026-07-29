@@ -19,10 +19,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 
-/** Host the mock backend answers on. MockEngine ignores it, but Ktor still needs a valid URL. */
 const val POS_BASE_URL: String = "https://pos.example.com"
 
-/** Carries the order UUID so a retry can be recognised as the same order. */
 const val IDEMPOTENCY_KEY_HEADER: String = "Idempotency-Key"
 
 internal val PosJson: Json = Json {
@@ -30,16 +28,12 @@ internal val PosJson: Json = Json {
     prettyPrint = false
 }
 
-/** Which orders the fake backend fails once before accepting. */
 enum class TransientFailureMode {
-    /** The first order the backend ever sees fails its first attempt, then succeeds on retry. */
     FirstOrderOnly,
 
-    /** Nothing fails. */
     None,
 }
 
-/** One request the backend handled, kept so tests can assert what actually went over the wire. */
 data class RecordedOrderRequest(
     val orderId: String,
     val idempotencyKey: String?,
@@ -47,17 +41,7 @@ data class RecordedOrderRequest(
     val duplicate: Boolean,
 )
 
-/**
- * A stand-in for the POS backend, served in-process by Ktor's [MockEngine]. It is the app's real
- * HTTP path — same client, same serialization — with a canned server on the other end.
- *
- * `POST /orders` is idempotent: the backend keeps the set of order ids it has accepted, so a
- * replayed UUID is acknowledged as a duplicate instead of being recorded a second time. One
- * transient `503` is simulated according to [failureMode], and the failed order is deliberately
- * *not* added to the accepted set, so a retry goes through the full accept path.
- *
- * State is guarded by a [Mutex] so overlapping requests cannot corrupt it.
- */
+
 class MockPosBackend(
     private val failureMode: TransientFailureMode = TransientFailureMode.FirstOrderOnly,
 ) {
@@ -66,10 +50,8 @@ class MockPosBackend(
     private val failedOnce = LinkedHashSet<String>()
     private val requests = mutableListOf<RecordedOrderRequest>()
 
-    /** Order ids the backend has accepted, in acceptance order. */
     val acceptedOrderIds: List<String> get() = accepted.toList()
 
-    /** Every `POST /orders` the backend handled, oldest first. */
     val orderRequests: List<RecordedOrderRequest> get() = requests.toList()
 
     fun requestCountFor(orderId: String): Int = requests.count { it.orderId == orderId }
@@ -164,14 +146,6 @@ class MockPosBackend(
     ) = respond(body, status, headersOf(HttpHeaders.ContentType, "application/json"))
 }
 
-/**
- * The catalog the fake backend serves: a small coffee-shop counter.
- *
- * Food is tax exempt and hardware is taxable, so mixed carts exercise the taxable subtotal.
- * The mug (17.50) plus the flask (32.50) lands on exactly 50.00, which demonstrates the
- * inclusive discount threshold; the grinder alone (54.99) clears it on its own. Stock ranges
- * from 120 down to 0, so both the quantity cap and the out-of-stock case are reachable.
- */
 private val CATALOG_RESPONSE_JSON =
     """
     {

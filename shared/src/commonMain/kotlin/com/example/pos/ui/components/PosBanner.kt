@@ -21,11 +21,6 @@ import com.example.pos.ui.theme.statusColors
 
 enum class BannerTone { Info, Warning }
 
-/**
- * The one inline notice: offline checkout, a sync that needs retrying, anything the cashier
- * should read but not be blocked by. Tinted containers only — never a saturated fill — so a
- * banner sits calmly inside a card instead of shouting.
- */
 @Composable
 fun PosBanner(
     tone: BannerTone,
@@ -57,7 +52,9 @@ fun PosBanner(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.padding(top = 1.dp).size(16.dp),
+                modifier = Modifier
+                    .padding(top = 1.dp)
+                    .size(16.dp),
             )
             CompositionLocalProvider(
                 LocalTextStyle provides MaterialTheme.typography.labelMedium,

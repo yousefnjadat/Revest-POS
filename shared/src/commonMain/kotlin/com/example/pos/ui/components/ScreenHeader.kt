@@ -11,11 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.pos.ui.theme.PosSpacing
 
-/**
- * Title on the left, one supporting figure on the right. Deliberately `titleLarge` rather than a
- * display size — this is a working till, not a landing page, and the screen title should not
- * out-shout the totals.
- */
 @Composable
 fun ScreenHeader(
     title: String,

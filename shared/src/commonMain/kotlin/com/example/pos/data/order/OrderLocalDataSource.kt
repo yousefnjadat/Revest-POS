@@ -8,7 +8,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
-/** Every read and write of `pending_orders`. All work happens off the main thread. */
 internal class OrderLocalDataSource(
     database: PosDatabase,
     private val dispatcher: CoroutineDispatcher,

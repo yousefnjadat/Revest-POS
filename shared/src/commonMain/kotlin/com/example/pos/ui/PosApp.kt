@@ -32,10 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.example.pos.ui.theme.PosTheme
 import org.koin.compose.viewmodel.koinViewModel
 
-/**
- * The application shell: one scaffold, one view model, and a `when` over the destination held in
- * state. No navigation library — three destinations do not need a back stack.
- */
+
 @Composable
 fun PosApp(viewModel: PosViewModel = koinViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -53,14 +50,15 @@ fun PosApp(viewModel: PosViewModel = koinViewModel()) {
             topBar = {
                 Column {
                     PosTopBar(isOnline = state.isOnline, onToggleOnline = viewModel::setOnline)
-                    // A 2dp bar rather than a spinner: progress belongs to the whole app here.
                     AnimatedVisibility(
                         visible = state.isSyncing,
                         enter = fadeIn(),
                         exit = fadeOut(),
                     ) {
                         LinearProgressIndicator(
-                            modifier = Modifier.fillMaxWidth().height(2.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(2.dp),
                         )
                     }
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -79,8 +77,9 @@ fun PosApp(viewModel: PosViewModel = koinViewModel()) {
             },
             snackbarHost = { SnackbarHost(snackbarHostState) },
         ) { contentPadding ->
-            // Each screen owns its own scrolling, so lazy lists and grids keep bounded heights.
-            Box(modifier = Modifier.fillMaxSize().padding(contentPadding)) {
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .padding(contentPadding)) {
                 when (state.destination) {
                     AppDestination.CATALOG ->
                         CatalogScreen(

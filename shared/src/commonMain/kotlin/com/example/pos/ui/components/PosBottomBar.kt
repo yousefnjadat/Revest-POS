@@ -69,7 +69,6 @@ fun PosBottomBar(
     }
 }
 
-/** Cart shows what is in it; Orders shows what still has to reach the backend. */
 private fun AppDestination.badgeCount(cartItemCount: Int, pendingOrderCount: Int): Int =
     when (this) {
         AppDestination.CATALOG -> 0

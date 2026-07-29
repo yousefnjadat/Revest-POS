@@ -12,10 +12,6 @@ import com.example.pos.domain.Order
 import com.example.pos.domain.OrderSyncState
 import com.example.pos.ui.theme.statusColors
 
-/**
- * Sync state of one order. Every state carries its own icon *and* its own word, so the chip
- * still reads in greyscale or with colour vision differences.
- */
 @Composable
 fun SyncStatusChip(
     order: Order,

@@ -93,9 +93,6 @@ fun OrdersScreen(
             return@Column
         }
 
-        // A new order is prepended, and LazyColumn keeps its anchor when items are inserted
-        // above the viewport — which would leave the sale just rung up scrolled off the top.
-        // Snap back to the newest order whenever one arrives.
         val listState = rememberLazyListState()
         val newestOrderId = state.orders.firstOrNull()?.id
         LaunchedEffect(newestOrderId) {
@@ -189,7 +186,6 @@ private fun SyncSummaryCard(
     }
 }
 
-/** Says why the button is in the state it is in, so a disabled button is never a dead end. */
 private fun syncHint(isOnline: Boolean, isSyncing: Boolean, pending: Int): String =
     when {
         isSyncing -> "Sending orders to the backend..."

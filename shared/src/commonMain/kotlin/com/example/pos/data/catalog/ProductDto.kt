@@ -18,10 +18,6 @@ internal data class ProductDto(
     val stock: Int,
 )
 
-/**
- * Wire model to domain model. [Product] validates its own price and stock, so a response with
- * nonsense values fails here and surfaces as a catalog failure rather than a broken cart later.
- */
 internal fun ProductDto.toProduct(): Product =
     Product(
         id = id,

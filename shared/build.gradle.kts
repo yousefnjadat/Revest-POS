@@ -63,8 +63,6 @@ kotlin {
             implementation(compose.preview)
         }
 
-        // Android unit tests run on the JVM, so the real schema and queries can be exercised
-        // against an in-memory SQLite database without a device or a Desktop target.
         androidUnitTest.dependencies {
             implementation(libs.sqldelight.driver.jvm)
         }
@@ -86,7 +84,6 @@ android {
 }
 
 dependencies {
-    // Renders the @Preview composables inside Android Studio; debug builds only.
     debugImplementation(compose.uiTooling)
 }
 

@@ -74,10 +74,6 @@ internal val PosDarkColors =
         scrim = Color(0xFF000000),
     )
 
-/**
- * Material 3 has no success or warning role, and connection status needs both. Kept to the two
- * pairs the app actually uses rather than a parallel colour system.
- */
 @Immutable
 data class PosStatusColors(
     val success: Color,

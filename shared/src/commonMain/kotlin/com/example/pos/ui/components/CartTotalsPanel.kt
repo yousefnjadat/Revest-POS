@@ -23,13 +23,7 @@ import com.example.pos.ui.formatMoney
 import com.example.pos.ui.theme.PosSpacing
 import com.example.pos.ui.theme.statusColors
 
-/**
- * Subtotal, tax, discount, total. The discount line only appears once it has been earned —
- * before that the panel says how much more it would take, which is information the cashier can
- * act on rather than a permanently greyed-out row.
- *
- * Only the total is typographically loud; everything above it is quiet supporting detail.
- */
+
 @Composable
 fun CartTotalsPanel(
     totals: CartTotals,
@@ -115,7 +109,7 @@ private fun DiscountHint(remainingCents: Long) {
         Text(
             text =
                 "${formatMoney(remainingCents)} more to earn " +
-                    "${CartCalculator.DISCOUNT_PERCENT}% off",
+                        "${CartCalculator.DISCOUNT_PERCENT}% off",
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

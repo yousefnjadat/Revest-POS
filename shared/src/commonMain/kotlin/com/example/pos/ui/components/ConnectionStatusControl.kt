@@ -25,13 +25,6 @@ import androidx.compose.ui.unit.dp
 import com.example.pos.ui.theme.PosSpacing
 import com.example.pos.ui.theme.statusColors
 
-/**
- * The online/offline toggle in the app bar — the single most important piece of status in an
- * offline-first till, so it is always visible and always one tap away.
- *
- * Status is carried three ways (icon, word, colour), never colour alone. The whole pill is one
- * 48dp target and is announced as a switch with its current state.
- */
 @Composable
 fun ConnectionStatusControl(
     isOnline: Boolean,

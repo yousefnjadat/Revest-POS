@@ -6,14 +6,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-/**
- * The outcome of a catalog load. Intentionally specific to the catalog rather than a general
- * purpose result type: the presentation layer only has to handle these two cases.
- */
+
 sealed interface CatalogResult {
     data class Success(val products: List<Product>) : CatalogResult
-
-    /** [message] is safe to show to the cashier; [cause] is kept for logging. */
     data class Failure(val message: String, val cause: Throwable? = null) : CatalogResult
 }
 

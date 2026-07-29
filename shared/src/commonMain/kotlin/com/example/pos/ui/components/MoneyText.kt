@@ -8,12 +8,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import com.example.pos.ui.formatMoney
 
-/**
- * Every price in the app goes through here.
- *
- * Prices are rendered with tabular figures (`tnum`), so digits share one width and totals line up
- * column-wise down the cart and the order list instead of wobbling.
- */
 @Composable
 fun MoneyText(
     cents: Long,

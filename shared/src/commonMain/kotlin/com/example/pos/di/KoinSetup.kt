@@ -20,13 +20,8 @@ import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
-/**
- * Platform-specific bindings: the SQLDelight driver, which needs an
- * [android.content.Context] on Android.
- */
 expect val platformModule: Module
 
-/** Shared bindings: repositories, sync, and the view model. */
 val appModule: Module =
     module {
         single { MockPosBackend() }
