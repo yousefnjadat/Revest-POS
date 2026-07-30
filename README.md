@@ -6,7 +6,8 @@ database before any network call**, so a completed order can never be lost to a 
 Orders sync to the backend when the device is online, retry safely when a request fails, and can
 never be accepted twice.
 
-Android is the only launcher target; all logic and UI live in the `shared` module.
+Android is the primary launcher; a JVM **Desktop** launcher (Compose for Desktop) runs the same
+`shared` module. All logic and UI live in `shared` — each launcher is a thin entry point.
 
 ---
 
@@ -57,12 +58,14 @@ Android is the only launcher target; all logic and UI live in the `shared` modul
 
 ## 4. Structure
 
-Two Gradle modules. Layers are packages, not modules.
+Three Gradle modules — two thin launchers over one shared module. Layers are packages, not modules.
 
 ```
 pos-kmp/
 ├── app-android/                  Android launcher only
 │   └── src/main/…                PosApplication, MainActivity, manifest, icons
+├── desktop-app/                  Compose for Desktop launcher only
+│   └── src/main/…                Main.kt (Window + PosApp)
 └── shared/
     └── src/
         ├── commonMain/kotlin/com/example/pos/
@@ -77,10 +80,15 @@ pos-kmp/
         │   ├── ui/               PosApp, screens/, components/, theme/
         │   └── di/               Koin modules, ioDispatcher
         ├── commonMain/sqldelight/…/PendingOrders.sq
-        ├── androidMain/          SQLDelight driver, Dispatchers.IO, @Preview composables
+        ├── androidMain/          Android SQLDelight driver, Dispatchers.IO, @Preview composables
+        ├── desktopMain/          JDBC SQLDelight driver, Dispatchers.IO
         ├── commonTest/           pure domain, mapping and repository-contract tests
         └── androidUnitTest/      tests needing a JVM SQLite database
 ```
+
+The two platform bits are the only `expect`/`actual` pairs: the SQLDelight driver
+(`AndroidSqliteDriver` vs. `JdbcSqliteDriver`) and `ioDispatcher`. Everything else — domain, data,
+sync, presentation and the entire Compose UI — is shared `commonMain`.
 
 One `PosViewModel` backs all three destinations, because the cart, catalog and order history are
 shared state — splitting them would only mean synchronising them again. Navigation is a three-value
@@ -212,6 +220,19 @@ Install and launch on a connected device or emulator:
 `local.properties` must point at an Android SDK (`sdk.dir`); it is not checked in. Opening the
 project in Android Studio and pressing Run works too — the `@Preview` composables under
 `shared/src/androidMain` cover every screen state.
+
+### Running the desktop app
+
+The same app on the JVM, via Compose for Desktop:
+
+```bash
+./gradlew :desktop-app:run
+```
+
+It opens a native "Revest POS" window running the identical shared UI. The order database is a
+SQLite file at `~/.revest-pos/pos.db`, so checkouts persist across launches just like on Android.
+`./gradlew :desktop-app:packageDistributionForCurrentOS` produces a native installer (MSI / DMG /
+DEB).
 
 ## 12. Running tests
 
