@@ -1,9 +1,10 @@
 package com.example.pos.data.catalog
 
 import com.example.pos.domain.repository.CatalogResult
-import com.example.pos.data.catalog.remote.KtorCatalogApi
-import com.example.pos.data.remote.MockPosBackend
-import com.example.pos.data.remote.POS_BASE_URL
+import com.example.pos.data.datasource.remote.KtorCatalogApi
+import com.example.pos.data.datasource.remote.MockPosBackend
+import com.example.pos.data.datasource.remote.POS_BASE_URL
+import com.example.pos.data.repository.DefaultCatalogRepository
 import com.example.pos.domain.CartCalculator
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.request.get
@@ -15,7 +16,6 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
 
-/** Covers the catalog the app actually ships with, end to end through Ktor and serialization. */
 class MockPosBackendTest {
     private val repository =
         DefaultCatalogRepository(
@@ -71,7 +71,6 @@ class MockPosBackendTest {
 
     @Test
     fun unknownEndpointsReturnNotFound() = runTest {
-        // The fake backend is route-aware rather than answering every request with the catalog.
         val failure =
             assertFailsWith<ClientRequestException> {
                 MockPosBackend().createClient().get("$POS_BASE_URL/nope")

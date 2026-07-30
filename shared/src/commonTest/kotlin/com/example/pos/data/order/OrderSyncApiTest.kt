@@ -1,11 +1,11 @@
 package com.example.pos.data.order
 
-import com.example.pos.data.order.remote.KtorOrderSyncApi
-import com.example.pos.data.order.model.toRequestDto
-import com.example.pos.data.remote.IDEMPOTENCY_KEY_HEADER
-import com.example.pos.data.remote.MockPosBackend
-import com.example.pos.data.remote.POS_BASE_URL
-import com.example.pos.data.remote.TransientFailureMode
+import com.example.pos.data.datasource.remote.KtorOrderSyncApi
+import com.example.pos.data.dto.toRequestDto
+import com.example.pos.data.datasource.remote.IDEMPOTENCY_KEY_HEADER
+import com.example.pos.data.datasource.remote.MockPosBackend
+import com.example.pos.data.datasource.remote.POS_BASE_URL
+import com.example.pos.data.datasource.remote.TransientFailureMode
 import com.example.pos.data.testClient
 import com.example.pos.domain.model.Cart
 import com.example.pos.domain.model.Order

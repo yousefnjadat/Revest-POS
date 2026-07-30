@@ -61,37 +61,6 @@ Android is the primary launcher; a JVM **Desktop** launcher (Compose for Desktop
 Three Gradle modules — two thin launchers over one shared module. Layers are packages, not modules,
 and the dependency direction is strict: **`data` depends on `domain`, never the reverse.**
 
-```
-pos-kmp/
-├── app-android/                  Android launcher only
-│   └── src/main/…                PosApplication, MainActivity, manifest, icons
-├── desktop-app/                  Compose for Desktop launcher only
-│   └── src/main/…                Main.kt (Window + PosApp)
-└── shared/
-    └── src/
-        ├── commonMain/kotlin/com/example/pos/
-        │   ├── core/             AppInfo, PosLog (cross-cutting)
-        │   ├── domain/           ← pure business rules, no I/O
-        │   │   ├── model/        Product, Cart, CartLine, CartTotals, Order, SyncTrigger
-        │   │   ├── repository/   CatalogRepository, OrderRepository  (interfaces)
-        │   │   ├── CartCalculator.kt   the one place totals are computed
-        │   │   └── Money.kt           the rounding rule
-        │   ├── data/             ← implementations of the domain contracts
-        │   │   ├── catalog/      model/ (DTOs) · remote/ (Ktor) · DefaultCatalogRepository
-        │   │   ├── order/        model/ (DTOs) · local/ (SQLDelight) · remote/ (Ktor)
-        │   │   │                 · DefaultOrderRepository
-        │   │   ├── remote/       MockPosBackend (Ktor MockEngine)
-        │   │   └── sync/         OrderSyncCoordinator
-        │   ├── presentation/     PosViewModel, PosUiState, AppDestination
-        │   ├── ui/               PosApp, screens/, components/, theme/
-        │   └── di/               Koin modules, ioDispatcher
-        ├── commonMain/sqldelight/…/PendingOrders.sq
-        ├── androidMain/          AndroidSqliteDriver, Dispatchers.IO, @Preview composables
-        ├── desktopMain/          JdbcSqliteDriver, Dispatchers.IO
-        ├── commonTest/           pure domain, mapping and repository-contract tests
-        └── androidUnitTest/      tests needing a JVM SQLite database
-```
-
 Where to look: *how tax is calculated* → `domain/CartCalculator.kt`; *what an order is* →
 `domain/model/Order.kt`; *what you can do with orders* → `domain/repository/OrderRepository.kt`;
 *how they are stored* → `data/order/local/`; *how they are sent* → `data/order/remote/`.

@@ -1,4 +1,4 @@
-package com.example.pos.data.order.model
+package com.example.pos.data.dto
 
 import com.example.pos.domain.model.Order
 import kotlinx.serialization.SerialName

@@ -1,14 +1,14 @@
 package com.example.pos.data.sync
 
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
-import com.example.pos.data.order.DefaultOrderRepository
-import com.example.pos.data.order.remote.KtorOrderSyncApi
-import com.example.pos.data.order.local.OrderLocalDataSource
+import com.example.pos.data.repository.DefaultOrderRepository
+import com.example.pos.data.datasource.remote.KtorOrderSyncApi
+import com.example.pos.data.datasource.local.OrderLocalDataSource
 import com.example.pos.domain.repository.OrderRepository
-import com.example.pos.data.order.remote.OrderSyncApi
-import com.example.pos.data.order.remote.SyncAcknowledgement
-import com.example.pos.data.remote.MockPosBackend
-import com.example.pos.data.remote.TransientFailureMode
+import com.example.pos.data.datasource.remote.OrderSyncApi
+import com.example.pos.data.datasource.remote.SyncAcknowledgement
+import com.example.pos.data.datasource.remote.MockPosBackend
+import com.example.pos.data.datasource.remote.TransientFailureMode
 import com.example.pos.db.PosDatabase
 import com.example.pos.domain.model.Cart
 import com.example.pos.domain.model.Order
@@ -30,10 +30,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 
-/**
- * The offline-first workflow end to end: real SQLite underneath, the Ktor MockEngine backend on
- * top, and nothing stubbed in between.
- */
 class OrderSyncCoordinatorTest {
     private val syncedAtMillis = 1_700_000_500_000L
 
@@ -246,7 +242,6 @@ class OrderSyncCoordinatorTest {
     }
 }
 
-/** Small SAM-style helper so tests can express a fake backend as a lambda. */
 private fun OrderSyncApi(submit: suspend (Order) -> SyncAcknowledgement): OrderSyncApi =
     object : OrderSyncApi {
         override suspend fun submit(order: Order): SyncAcknowledgement = submit(order)

@@ -3,8 +3,8 @@ package com.example.pos.presentation
 import com.example.pos.domain.repository.CatalogRepository
 import com.example.pos.domain.repository.CatalogResult
 import com.example.pos.domain.repository.OrderRepository
-import com.example.pos.data.order.remote.OrderSyncApi
-import com.example.pos.data.order.remote.SyncAcknowledgement
+import com.example.pos.data.datasource.remote.OrderSyncApi
+import com.example.pos.data.datasource.remote.SyncAcknowledgement
 import com.example.pos.domain.model.Order
 import com.example.pos.domain.model.OrderSyncState
 import com.example.pos.domain.model.Product
@@ -24,7 +24,6 @@ internal class FakeCatalogRepository(
     }
 }
 
-/** An in-memory stand-in for the SQLDelight repository, with the same idempotent save. */
 internal class FakeOrderRepository : OrderRepository {
     private val stored = MutableStateFlow<List<Order>>(emptyList())
     var failOnSave = false
@@ -64,7 +63,6 @@ internal class FakeOrderRepository : OrderRepository {
     }
 }
 
-/** Records what was submitted, and can be made to fail or to block until released. */
 internal class FakeOrderSyncApi : OrderSyncApi {
     val submitted = mutableListOf<String>()
     var failure: Exception? = null

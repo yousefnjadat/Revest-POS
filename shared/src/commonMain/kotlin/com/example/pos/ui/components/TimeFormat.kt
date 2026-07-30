@@ -1,4 +1,4 @@
-package com.example.pos.ui
+package com.example.pos.ui.components
 
 import kotlin.time.Clock
 import kotlin.time.Instant

@@ -2,10 +2,11 @@ package com.example.pos.data.catalog
 
 import com.example.pos.domain.repository.CatalogResult
 import com.example.pos.domain.repository.CatalogRepository
-import com.example.pos.data.catalog.remote.KtorCatalogApi
-import com.example.pos.data.catalog.remote.CatalogApi
-import com.example.pos.data.catalog.model.ProductDto
+import com.example.pos.data.datasource.remote.KtorCatalogApi
+import com.example.pos.data.datasource.remote.CatalogApi
+import com.example.pos.data.dto.ProductDto
 import com.example.pos.data.clientRespondingWith
+import com.example.pos.data.repository.DefaultCatalogRepository
 import com.example.pos.data.testClient
 import io.ktor.client.HttpClient
 import io.ktor.http.HttpStatusCode

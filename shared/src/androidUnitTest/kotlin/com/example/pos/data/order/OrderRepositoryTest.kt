@@ -1,8 +1,9 @@
 package com.example.pos.data.order
 
 import com.example.pos.domain.repository.OrderRepository
-import com.example.pos.data.order.local.OrderLocalDataSource
+import com.example.pos.data.datasource.local.OrderLocalDataSource
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import com.example.pos.data.repository.DefaultOrderRepository
 import com.example.pos.db.PosDatabase
 import com.example.pos.domain.model.Cart
 import com.example.pos.domain.model.Order
@@ -26,10 +27,6 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 
-/**
- * Exercises the real schema and queries against in-memory SQLite. Android unit tests run on the
- * JVM, so this needs no device and no extra Kotlin target.
- */
 class OrderRepositoryTest {
     private lateinit var driver: JdbcSqliteDriver
     private lateinit var repository: OrderRepository

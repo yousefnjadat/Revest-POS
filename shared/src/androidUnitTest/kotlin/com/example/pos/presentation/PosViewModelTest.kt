@@ -1,5 +1,6 @@
 package com.example.pos.presentation
 
+import com.example.pos.core.enums.AppDestination
 import com.example.pos.domain.repository.CatalogResult
 import com.example.pos.data.sync.OrderSyncCoordinator
 import com.example.pos.domain.model.OrderSyncState
@@ -452,12 +453,6 @@ class PosViewModelTest {
     }
 
     private fun TestScope.readyViewModel(): PosViewModel = viewModel().also { advanceUntilIdle() }
-
-    /**
-     * Starts collecting before the test acts, so no one-shot message is missed. The unconfined
-     * dispatcher subscribes eagerly and delivers on emit, which keeps the assertions independent
-     * of when the scheduler happens to run.
-     */
     private fun TestScope.collectMessages(viewModel: PosViewModel): List<UserMessage> {
         val messages = mutableListOf<UserMessage>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {

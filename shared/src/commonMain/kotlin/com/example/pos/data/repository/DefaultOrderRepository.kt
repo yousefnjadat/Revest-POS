@@ -1,11 +1,10 @@
-package com.example.pos.data.order
+package com.example.pos.data.repository
 
-import com.example.pos.data.order.local.OrderLocalDataSource
+import com.example.pos.data.datasource.local.OrderLocalDataSource
 import com.example.pos.domain.model.Order
 import com.example.pos.domain.repository.OrderRepository
 import kotlinx.coroutines.flow.Flow
 
-/** Fulfils [OrderRepository] by delegating to the SQLDelight-backed local data source. */
 internal class DefaultOrderRepository(
     private val local: OrderLocalDataSource,
 ) : OrderRepository {

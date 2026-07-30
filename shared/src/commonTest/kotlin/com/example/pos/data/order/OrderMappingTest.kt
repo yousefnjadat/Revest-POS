@@ -1,8 +1,8 @@
 package com.example.pos.data.order
 
-import com.example.pos.data.order.local.orderFromRow
-import com.example.pos.data.order.local.encodeLines
-import com.example.pos.data.order.local.decodeLines
+import com.example.pos.data.mapper.orderFromRow
+import com.example.pos.data.mapper.encodeLines
+import com.example.pos.data.mapper.decodeLines
 import com.example.pos.domain.model.OrderLine
 import com.example.pos.domain.model.OrderSyncState
 import kotlin.test.Test
@@ -10,7 +10,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/** Serialization and row mapping, exercised without a database. */
 class OrderMappingTest {
     private val lines =
         listOf(
@@ -100,7 +99,6 @@ class OrderMappingTest {
     fun theTaxableSubtotalIsRecomputedFromTheStoredLines() {
         val order = row()
 
-        // Only the mug is taxable: 2 x 17.50.
         assertEquals(3_500, order.totals.taxableSubtotalCents)
     }
 

@@ -11,7 +11,6 @@ import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-/** A client wired exactly like the app's, but answering with whatever the test needs. */
 internal fun testClient(handler: MockRequestHandler): HttpClient =
     HttpClient(MockEngine(handler)) {
         expectSuccess = true

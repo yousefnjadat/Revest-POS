@@ -1,5 +1,4 @@
-package com.example.pos.presentation
-
+package com.example.pos.core.enums
 
 enum class AppDestination(val label: String) {
     CATALOG("Catalog"),

@@ -50,8 +50,8 @@ import com.example.pos.ui.components.PosBanner
 import com.example.pos.ui.components.PosCard
 import com.example.pos.ui.components.ScreenHeader
 import com.example.pos.ui.components.SyncStatusChip
-import com.example.pos.ui.formatOrderTime
-import com.example.pos.ui.orderReference
+import com.example.pos.ui.components.formatOrderTime
+import com.example.pos.ui.components.orderReference
 import com.example.pos.ui.theme.PosSpacing
 import com.example.pos.ui.theme.statusColors
 

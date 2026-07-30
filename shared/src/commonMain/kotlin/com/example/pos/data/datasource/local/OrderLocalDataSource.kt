@@ -1,7 +1,9 @@
-package com.example.pos.data.order.local
+package com.example.pos.data.datasource.local
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
+import com.example.pos.data.mapper.encodeLines
+import com.example.pos.data.mapper.orderFromRow
 import com.example.pos.db.PosDatabase
 import com.example.pos.domain.model.Order
 import kotlinx.coroutines.CoroutineDispatcher

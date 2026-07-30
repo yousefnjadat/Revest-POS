@@ -1,12 +1,12 @@
 package com.example.pos.presentation
 
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
-import com.example.pos.data.order.DefaultOrderRepository
-import com.example.pos.data.order.remote.KtorOrderSyncApi
-import com.example.pos.data.order.local.OrderLocalDataSource
+import com.example.pos.data.repository.DefaultOrderRepository
+import com.example.pos.data.datasource.remote.KtorOrderSyncApi
+import com.example.pos.data.datasource.local.OrderLocalDataSource
 import com.example.pos.domain.repository.OrderRepository
-import com.example.pos.data.remote.MockPosBackend
-import com.example.pos.data.remote.TransientFailureMode
+import com.example.pos.data.datasource.remote.MockPosBackend
+import com.example.pos.data.datasource.remote.TransientFailureMode
 import com.example.pos.data.sync.OrderSyncCoordinator
 import com.example.pos.db.PosDatabase
 import com.example.pos.domain.model.Order
@@ -28,15 +28,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 
-/**
- * The acceptance path with nothing faked below the view model: a real SQLite database, the real
- * repository, the real sync coordinator, and the Ktor MockEngine backend. The view-model unit
- * tests use in-memory fakes for speed; this one proves the wiring they stand in for holds.
- *
- * Waiting note: Ktor's MockEngine completes on a real dispatcher, so virtual-time
- * `advanceUntilIdle()` cannot be used to observe a sync finishing. Tests either await the
- * database reaching a state (`awaitOrders`) or call the coordinator's suspending `sync` directly.
- */
 class CheckoutPersistenceTest {
     private val mainDispatcher = StandardTestDispatcher()
     private val syncedAtMillis = 1_772_000_500_000L
@@ -78,7 +69,6 @@ class CheckoutPersistenceTest {
 
         viewModel.checkout()
 
-        // A separate repository over the same database — what a relaunch would read.
         val stored = newRepository().observeOrders().first { it.isNotEmpty() }.single()
         assertEquals(OrderSyncState.PENDING, stored.syncState)
         assertNull(stored.syncedAtEpochMillis)
@@ -95,7 +85,6 @@ class CheckoutPersistenceTest {
 
     @Test
     fun theStoredOrderIdIsARandomUuidUsableAsAnIdempotencyKey() = runTest(mainDispatcher) {
-        // No id is injected here, so this exercises the production UUID generator.
         val viewModel = readyViewModel()
         viewModel.setOnline(false)
         viewModel.addProduct("mug")
@@ -117,7 +106,6 @@ class CheckoutPersistenceTest {
             viewModel.checkout()
             val orderId = awaitOrders { it.isNotEmpty() }.single().id
 
-            // Reconnecting fires the automatic sync, which the backend fails exactly once.
             viewModel.setOnline(true)
             val failed = awaitOrders { it.single().syncState == OrderSyncState.FAILED }.single()
 
@@ -180,7 +168,6 @@ class CheckoutPersistenceTest {
             assertEquals(2, pending.map { it.id }.toSet().size, "each sale gets its own UUID")
             assertTrue(pending.all { it.syncState == OrderSyncState.PENDING })
 
-            // The backend fails the first order of the batch once; the second still goes through.
             val batch = coordinator.sync(SyncTrigger.CAME_ONLINE)
             assertEquals(1, batch.syncedCount)
             assertEquals(1, batch.failedCount)
@@ -197,7 +184,6 @@ class CheckoutPersistenceTest {
             assertEquals(2, settled.size, "retrying never adds a row")
         }
 
-    /** Suspends until the stored orders satisfy [predicate]; SQLDelight emits on every write. */
     private suspend fun awaitOrders(predicate: (List<Order>) -> Boolean): List<Order> =
         repository.observeOrders().first(predicate)
 

@@ -1,7 +1,7 @@
-package com.example.pos.data.remote
+package com.example.pos.data.datasource.remote
 
-import com.example.pos.data.order.model.OrderAcceptedDto
-import com.example.pos.data.order.model.OrderRequestDto
+import com.example.pos.data.dto.OrderAcceptedDto
+import com.example.pos.data.dto.OrderRequestDto
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockRequestHandleScope

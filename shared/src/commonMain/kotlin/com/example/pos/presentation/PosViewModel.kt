@@ -3,6 +3,7 @@ package com.example.pos.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pos.core.PosLog
+import com.example.pos.core.enums.AppDestination
 import com.example.pos.domain.repository.CatalogRepository
 import com.example.pos.domain.repository.CatalogResult
 import com.example.pos.domain.repository.OrderRepository

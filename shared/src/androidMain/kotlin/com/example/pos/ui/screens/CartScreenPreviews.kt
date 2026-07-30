@@ -19,10 +19,8 @@ private val Flask =
 private val Muffin =
     Product("sku-1003", "Blueberry Muffin", priceCents = 295, stock = 6, taxable = false)
 
-/** 17.50 + 2 x 2.95 = 23.40, comfortably under the 50.00 threshold. */
 private val SmallCart = Cart().add(Mug).add(Muffin, quantity = 2)
 
-/** 17.50 + 32.50 = exactly 50.00, so the 5% discount is earned. */
 private val DiscountedCart = Cart().add(Mug).add(Flask)
 
 @Composable

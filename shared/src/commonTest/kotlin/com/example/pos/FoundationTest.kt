@@ -11,7 +11,6 @@ import kotlin.uuid.Uuid
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 
-/** Verifies the multiplatform primitives and DI wiring this project is built on. */
 class FoundationTest {
     @Test
     fun uuidsAreUniqueAndCanonicallyFormatted() {

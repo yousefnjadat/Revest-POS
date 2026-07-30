@@ -1,9 +1,7 @@
-package com.example.pos.data.order.remote
+package com.example.pos.data.datasource.remote
 
-import com.example.pos.data.order.model.OrderAcceptedDto
-import com.example.pos.data.order.model.toRequestDto
-import com.example.pos.data.remote.IDEMPOTENCY_KEY_HEADER
-import com.example.pos.data.remote.POS_BASE_URL
+import com.example.pos.data.dto.OrderAcceptedDto
+import com.example.pos.data.dto.toRequestDto
 import com.example.pos.domain.model.Order
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body

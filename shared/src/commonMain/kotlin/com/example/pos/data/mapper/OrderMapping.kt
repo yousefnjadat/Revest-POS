@@ -1,4 +1,4 @@
-package com.example.pos.data.order.local
+package com.example.pos.data.mapper
 
 import com.example.pos.domain.model.CartTotals
 import com.example.pos.domain.model.Order

@@ -1,15 +1,15 @@
 package com.example.pos.di
 
-import com.example.pos.data.catalog.remote.CatalogApi
+import com.example.pos.data.datasource.remote.CatalogApi
 import com.example.pos.domain.repository.CatalogRepository
-import com.example.pos.data.catalog.DefaultCatalogRepository
-import com.example.pos.data.catalog.remote.KtorCatalogApi
-import com.example.pos.data.order.DefaultOrderRepository
-import com.example.pos.data.order.remote.KtorOrderSyncApi
-import com.example.pos.data.order.local.OrderLocalDataSource
+import com.example.pos.data.repository.DefaultCatalogRepository
+import com.example.pos.data.datasource.remote.KtorCatalogApi
+import com.example.pos.data.repository.DefaultOrderRepository
+import com.example.pos.data.datasource.remote.KtorOrderSyncApi
+import com.example.pos.data.datasource.local.OrderLocalDataSource
 import com.example.pos.domain.repository.OrderRepository
-import com.example.pos.data.order.remote.OrderSyncApi
-import com.example.pos.data.remote.MockPosBackend
+import com.example.pos.data.datasource.remote.OrderSyncApi
+import com.example.pos.data.datasource.remote.MockPosBackend
 import com.example.pos.data.sync.OrderSyncCoordinator
 import com.example.pos.db.PosDatabase
 import com.example.pos.presentation.PosViewModel

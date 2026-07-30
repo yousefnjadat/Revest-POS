@@ -1,5 +1,6 @@
 package com.example.pos.presentation
 
+import com.example.pos.core.enums.AppDestination
 import com.example.pos.domain.model.Cart
 import com.example.pos.domain.model.CartLine
 import com.example.pos.domain.model.CartTotals

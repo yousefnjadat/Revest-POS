@@ -21,7 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.pos.presentation.AppDestination
+import com.example.pos.core.enums.AppDestination
 import com.example.pos.presentation.PosViewModel
 import com.example.pos.ui.components.PosBottomBar
 import com.example.pos.ui.components.PosTopBar
