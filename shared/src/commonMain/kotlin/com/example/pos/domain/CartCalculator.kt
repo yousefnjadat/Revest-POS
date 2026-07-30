@@ -1,5 +1,7 @@
 package com.example.pos.domain
 
+import com.example.pos.domain.model.CartTotals
+import com.example.pos.domain.model.CartLine
 object CartCalculator {
     const val TAX_PERCENT: Int = 10
     const val DISCOUNT_PERCENT: Int = 5

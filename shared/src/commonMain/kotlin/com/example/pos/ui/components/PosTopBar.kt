@@ -8,7 +8,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.example.pos.APP_NAME
+import com.example.pos.core.APP_NAME
 import com.example.pos.ui.theme.PosSpacing
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -1,5 +1,6 @@
-package com.example.pos.domain
+package com.example.pos.domain.model
 
+import com.example.pos.domain.CartCalculator
 
 data class Cart(
     val lines: List<CartLine> = emptyList(),

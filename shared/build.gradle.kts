@@ -16,6 +16,12 @@ kotlin {
         }
     }
 
+    jvm("desktop") {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
+    }
+
     sourceSets {
         all {
             languageSettings {
@@ -65,6 +71,13 @@ kotlin {
 
         androidUnitTest.dependencies {
             implementation(libs.sqldelight.driver.jvm)
+        }
+
+        val desktopMain by getting {
+            dependencies {
+                // Desktop persists through the JDBC driver, behind the same OrderRepository.
+                implementation(libs.sqldelight.driver.jvm)
+            }
         }
     }
 }

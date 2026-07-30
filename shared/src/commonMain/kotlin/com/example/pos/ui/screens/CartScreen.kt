@@ -34,7 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.pos.domain.CartLine
+import com.example.pos.domain.model.CartLine
 import com.example.pos.presentation.PosUiState
 import com.example.pos.ui.components.BannerTone
 import com.example.pos.ui.components.CartTotalsPanel

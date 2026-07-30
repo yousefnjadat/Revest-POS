@@ -1,10 +1,10 @@
 package com.example.pos.data.sync
 
-import com.example.pos.PosLog
-import com.example.pos.data.order.OrderRepository
-import com.example.pos.data.order.OrderSyncApi
-import com.example.pos.domain.Order
-import com.example.pos.domain.SyncTrigger
+import com.example.pos.core.PosLog
+import com.example.pos.domain.repository.OrderRepository
+import com.example.pos.data.order.remote.OrderSyncApi
+import com.example.pos.domain.model.Order
+import com.example.pos.domain.model.SyncTrigger
 import io.ktor.client.plugins.ResponseException
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock

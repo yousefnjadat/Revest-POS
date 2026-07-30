@@ -8,8 +8,8 @@ import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.example.pos.domain.Order
-import com.example.pos.domain.OrderSyncState
+import com.example.pos.domain.model.Order
+import com.example.pos.domain.model.OrderSyncState
 import com.example.pos.ui.theme.statusColors
 
 @Composable

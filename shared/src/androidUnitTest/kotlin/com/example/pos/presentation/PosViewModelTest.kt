@@ -1,8 +1,8 @@
 package com.example.pos.presentation
 
-import com.example.pos.data.catalog.CatalogResult
+import com.example.pos.domain.repository.CatalogResult
 import com.example.pos.data.sync.OrderSyncCoordinator
-import com.example.pos.domain.OrderSyncState
+import com.example.pos.domain.model.OrderSyncState
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test

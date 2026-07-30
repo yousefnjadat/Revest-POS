@@ -2,16 +2,16 @@ package com.example.pos.presentation
 
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.example.pos.data.order.DefaultOrderRepository
-import com.example.pos.data.order.KtorOrderSyncApi
-import com.example.pos.data.order.OrderLocalDataSource
-import com.example.pos.data.order.OrderRepository
+import com.example.pos.data.order.remote.KtorOrderSyncApi
+import com.example.pos.data.order.local.OrderLocalDataSource
+import com.example.pos.domain.repository.OrderRepository
 import com.example.pos.data.remote.MockPosBackend
 import com.example.pos.data.remote.TransientFailureMode
 import com.example.pos.data.sync.OrderSyncCoordinator
 import com.example.pos.db.PosDatabase
-import com.example.pos.domain.Order
-import com.example.pos.domain.OrderSyncState
-import com.example.pos.domain.SyncTrigger
+import com.example.pos.domain.model.Order
+import com.example.pos.domain.model.OrderSyncState
+import com.example.pos.domain.model.SyncTrigger
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test

@@ -1,13 +1,13 @@
 package com.example.pos.presentation
 
-import com.example.pos.data.catalog.CatalogRepository
-import com.example.pos.data.catalog.CatalogResult
-import com.example.pos.data.order.OrderRepository
-import com.example.pos.data.order.OrderSyncApi
-import com.example.pos.data.order.SyncAcknowledgement
-import com.example.pos.domain.Order
-import com.example.pos.domain.OrderSyncState
-import com.example.pos.domain.Product
+import com.example.pos.domain.repository.CatalogRepository
+import com.example.pos.domain.repository.CatalogResult
+import com.example.pos.domain.repository.OrderRepository
+import com.example.pos.data.order.remote.OrderSyncApi
+import com.example.pos.data.order.remote.SyncAcknowledgement
+import com.example.pos.domain.model.Order
+import com.example.pos.domain.model.OrderSyncState
+import com.example.pos.domain.model.Product
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

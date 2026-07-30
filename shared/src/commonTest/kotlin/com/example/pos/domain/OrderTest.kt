@@ -1,5 +1,8 @@
 package com.example.pos.domain
 
+import com.example.pos.domain.model.toOrder
+import com.example.pos.domain.model.OrderSyncState
+import com.example.pos.domain.model.Cart
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

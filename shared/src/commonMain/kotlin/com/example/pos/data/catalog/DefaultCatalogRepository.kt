@@ -1,21 +1,18 @@
 package com.example.pos.data.catalog
 
-import com.example.pos.domain.Product
+import com.example.pos.data.catalog.model.toProduct
+import com.example.pos.data.catalog.remote.CatalogApi
+import com.example.pos.domain.repository.CatalogRepository
+import com.example.pos.domain.repository.CatalogResult
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-
-sealed interface CatalogResult {
-    data class Success(val products: List<Product>) : CatalogResult
-    data class Failure(val message: String, val cause: Throwable? = null) : CatalogResult
-}
-
-interface CatalogRepository {
-    suspend fun loadProducts(): CatalogResult
-}
-
+/**
+ * Fulfils [CatalogRepository] over the network: fetch, map DTOs to domain models, and turn any
+ * failure — transport, HTTP status, malformed JSON, invalid values — into a single [CatalogResult].
+ */
 internal class DefaultCatalogRepository(
     private val api: CatalogApi,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default,

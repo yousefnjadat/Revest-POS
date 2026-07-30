@@ -1,4 +1,4 @@
-package com.example.pos.domain
+package com.example.pos.domain.model
 
 enum class OrderSyncState {
     PENDING,

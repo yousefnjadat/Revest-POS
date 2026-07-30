@@ -1,5 +1,7 @@
 package com.example.pos.domain
 
+import com.example.pos.domain.model.CartLine
+import com.example.pos.domain.model.Cart
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

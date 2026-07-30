@@ -7,11 +7,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.pos.domain.Cart
-import com.example.pos.domain.Order
-import com.example.pos.domain.OrderSyncState
-import com.example.pos.domain.Product
-import com.example.pos.domain.toOrder
+import com.example.pos.domain.model.Cart
+import com.example.pos.domain.model.Order
+import com.example.pos.domain.model.OrderSyncState
+import com.example.pos.domain.model.Product
+import com.example.pos.domain.model.toOrder
 import com.example.pos.presentation.PosUiState
 import com.example.pos.ui.theme.PosTheme
 

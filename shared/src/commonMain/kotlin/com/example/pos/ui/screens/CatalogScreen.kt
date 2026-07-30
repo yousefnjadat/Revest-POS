@@ -33,7 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.example.pos.domain.Product
+import com.example.pos.domain.model.Product
 import com.example.pos.presentation.CatalogUiState
 import com.example.pos.presentation.PosUiState
 import com.example.pos.ui.components.EmptyState
@@ -54,47 +54,56 @@ fun CatalogScreen(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxSize()) {
-        when (val catalog = state.catalog) {
-            is CatalogUiState.Loading -> {
-                ScreenHeader(title = "Products")
-                CatalogSkeleton(modifier = Modifier.weight(1f))
-            }
+        // One pull-to-refresh wrapper around the whole content area. It lives here rather than
+        // inside the product list because this is the only level where "the catalog is reloading"
+        // is actually observable — a reload swaps the state back to Loading.
+        PullToRefreshBox(
+            isRefreshing = state.catalog is CatalogUiState.Loading,
+            onRefresh = onRetry,
+            modifier = Modifier.weight(1f),
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                when (val catalog = state.catalog) {
+                    is CatalogUiState.Loading -> {
+                        ScreenHeader(title = "Products")
+                        CatalogSkeleton(modifier = Modifier.weight(1f))
+                    }
 
-            is CatalogUiState.Empty ->
-                EmptyState(
-                    icon = Icons.Outlined.Inventory2,
-                    title = "No products yet",
-                    message = "The catalog came back empty. Reload once stock has been published.",
-                    actionLabel = "Reload",
-                    onAction = onRetry,
-                    modifier = Modifier.weight(1f),
-                )
+                    is CatalogUiState.Empty ->
+                        EmptyState(
+                            icon = Icons.Outlined.Inventory2,
+                            title = "No products yet",
+                            message = "The catalog came back empty. Reload once stock has been published.",
+                            actionLabel = "Reload",
+                            onAction = onRetry,
+                            modifier = Modifier.weight(1f),
+                        )
 
-            is CatalogUiState.Error ->
-                EmptyState(
-                    icon = Icons.Outlined.ErrorOutline,
-                    title = "Couldn't load the catalog",
-                    message = catalog.message,
-                    isError = true,
-                    actionLabel = "Try again",
-                    onAction = onRetry,
-                    modifier = Modifier.weight(1f),
-                )
+                    is CatalogUiState.Error ->
+                        EmptyState(
+                            icon = Icons.Outlined.ErrorOutline,
+                            title = "Couldn't load the catalog",
+                            message = catalog.message,
+                            isError = true,
+                            actionLabel = "Try again",
+                            onAction = onRetry,
+                            modifier = Modifier.weight(1f),
+                        )
 
-            is CatalogUiState.Content -> {
-                ScreenHeader(
-                    title = "Products",
-                    trailing = "${catalog.products.count { it.inStock }} available",
-                )
-                ProductCollection(
-                    products = catalog.products,
-                    quantityOf = state.cart::quantityOf,
-                    isRefreshing = state.catalog == CatalogUiState.Loading,
-                    onRefresh = onRetry,
-                    onAddProduct = onAddProduct,
-                    onDecreaseProduct = onDecreaseProduct,
-                    modifier = Modifier.weight(1f),
-                )
+                    is CatalogUiState.Content -> {
+                        ScreenHeader(
+                            title = "Products",
+                            trailing = "${catalog.products.count { it.inStock }} available",
+                        )
+                        ProductCollection(
+                            products = catalog.products,
+                            quantityOf = state.cart::quantityOf,
+                            onAddProduct = onAddProduct,
+                            onDecreaseProduct = onDecreaseProduct,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
             }
         }
 
@@ -106,8 +115,6 @@ fun CatalogScreen(
 private fun ProductCollection(
     products: List<Product>,
     quantityOf: (String) -> Int,
-    isRefreshing: Boolean,
-    onRefresh: () -> Unit,
     onAddProduct: (String) -> Unit,
     onDecreaseProduct: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -121,45 +128,34 @@ private fun ProductCollection(
             )
 
         if (maxWidth >= GRID_MIN_WIDTH) {
-            PullToRefreshBox(
-                isRefreshing = isRefreshing,
-                onRefresh = onRefresh,
-                modifier = modifier
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                contentPadding = contentPadding,
+                horizontalArrangement = Arrangement.spacedBy(PosSpacing.sm),
+                verticalArrangement = Arrangement.spacedBy(PosSpacing.sm),
             ) {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    contentPadding = contentPadding,
-                    horizontalArrangement = Arrangement.spacedBy(PosSpacing.sm),
-                    verticalArrangement = Arrangement.spacedBy(PosSpacing.sm),
-                ) {
-                    items(items = products, key = { it.id }) { product ->
-                        ProductCard(
-                            product = product,
-                            quantityInCart = quantityOf(product.id),
-                            onAdd = { onAddProduct(product.id) },
-                            onDecrease = { onDecreaseProduct(product.id) },
-                        )
-                    }
+                items(items = products, key = { it.id }) { product ->
+                    ProductCard(
+                        product = product,
+                        quantityInCart = quantityOf(product.id),
+                        onAdd = { onAddProduct(product.id) },
+                        onDecrease = { onDecreaseProduct(product.id) },
+                    )
                 }
             }
         } else {
-            PullToRefreshBox(
-                isRefreshing = isRefreshing,
-                onRefresh = onRefresh,
-                modifier = modifier
+            // Too narrow for two readable columns — one card per row instead.
+            LazyColumn(
+                contentPadding = contentPadding,
+                verticalArrangement = Arrangement.spacedBy(PosSpacing.sm),
             ) {
-                LazyColumn(
-                    contentPadding = contentPadding,
-                    verticalArrangement = Arrangement.spacedBy(PosSpacing.sm),
-                ) {
-                    items(items = products, key = { it.id }) { product ->
-                        ProductCard(
-                            product = product,
-                            quantityInCart = quantityOf(product.id),
-                            onAdd = { onAddProduct(product.id) },
-                            onDecrease = { onDecreaseProduct(product.id) },
-                        )
-                    }
+                items(items = products, key = { it.id }) { product ->
+                    ProductCard(
+                        product = product,
+                        quantityInCart = quantityOf(product.id),
+                        onAdd = { onAddProduct(product.id) },
+                        onDecrease = { onDecreaseProduct(product.id) },
+                    )
                 }
             }
         }

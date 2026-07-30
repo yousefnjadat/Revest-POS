@@ -18,7 +18,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.pos.domain.Product
+import com.example.pos.domain.model.Product
 import com.example.pos.ui.theme.PosSpacing
 import com.example.pos.ui.theme.statusColors
 

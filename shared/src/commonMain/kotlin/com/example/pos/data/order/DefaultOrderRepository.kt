@@ -1,24 +1,11 @@
 package com.example.pos.data.order
 
-import com.example.pos.domain.Order
+import com.example.pos.data.order.local.OrderLocalDataSource
+import com.example.pos.domain.model.Order
+import com.example.pos.domain.repository.OrderRepository
 import kotlinx.coroutines.flow.Flow
 
-interface OrderRepository {
-    fun observeOrders(): Flow<List<Order>>
-
-    suspend fun save(order: Order)
-
-    suspend fun unsyncedOrders(): List<Order>
-
-    suspend fun findById(orderId: String): Order?
-
-    suspend fun recordSyncAttempt(orderId: String)
-
-    suspend fun markSynced(orderId: String, syncedAtEpochMillis: Long)
-
-    suspend fun recordSyncError(orderId: String, message: String)
-}
-
+/** Fulfils [OrderRepository] by delegating to the SQLDelight-backed local data source. */
 internal class DefaultOrderRepository(
     private val local: OrderLocalDataSource,
 ) : OrderRepository {

@@ -1,5 +1,7 @@
 package com.example.pos.data.catalog
 
+import com.example.pos.domain.repository.CatalogResult
+import com.example.pos.data.catalog.remote.KtorCatalogApi
 import com.example.pos.data.remote.MockPosBackend
 import com.example.pos.data.remote.POS_BASE_URL
 import com.example.pos.domain.CartCalculator

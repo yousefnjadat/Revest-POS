@@ -1,12 +1,14 @@
 package com.example.pos.data.order
 
+import com.example.pos.domain.repository.OrderRepository
+import com.example.pos.data.order.local.OrderLocalDataSource
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.example.pos.db.PosDatabase
-import com.example.pos.domain.Cart
-import com.example.pos.domain.Order
-import com.example.pos.domain.OrderSyncState
-import com.example.pos.domain.Product
-import com.example.pos.domain.toOrder
+import com.example.pos.domain.model.Cart
+import com.example.pos.domain.model.Order
+import com.example.pos.domain.model.OrderSyncState
+import com.example.pos.domain.model.Product
+import com.example.pos.domain.model.toOrder
 import kotlin.coroutines.CoroutineContext
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest

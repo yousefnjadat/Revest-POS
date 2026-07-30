@@ -6,7 +6,8 @@ database before any network call**, so a completed order can never be lost to a 
 Orders sync to the backend when the device is online, retry safely when a request fails, and can
 never be accepted twice.
 
-Android is the only launcher target; all logic and UI live in the `shared` module.
+Android is the primary launcher; a JVM **Desktop** launcher (Compose for Desktop) runs the same
+`shared` module. All logic and UI live in `shared` — each launcher is a thin entry point.
 
 ---
 
@@ -26,17 +27,17 @@ Android is the only launcher target; all logic and UI live in the `shared` modul
 | Requirement | Implementation |
 | --- | --- |
 | Product catalog | `data/catalog/`, `ui/screens/CatalogScreen.kt` |
-| Add / remove from cart | `domain/Cart.kt`, `presentation/PosViewModel.kt` |
-| Quantity changes respecting stock | `domain/Cart.kt`, `domain/CartLine.kt` |
+| Add / remove from cart | `domain/model/Cart.kt`, `presentation/PosViewModel.kt` |
+| Quantity changes respecting stock | `domain/model/Cart.kt`, `domain/model/CartLine.kt` |
 | Subtotal + 10% tax − discount | `domain/CartCalculator.kt` |
 | 5% discount at subtotal ≥ 50.00 | `domain/CartCalculator.kt` |
 | Online / Offline toggle | `ui/components/ConnectionStatusControl.kt`, `PosViewModel.setOnline` |
-| Local persistence of every checkout | `sqldelight/…/PendingOrders.sq`, `data/order/` |
-| Sync via Ktor MockEngine | `data/remote/MockPosBackend.kt`, `data/order/OrderSyncApi.kt` |
+| Local persistence of every checkout | `sqldelight/…/PendingOrders.sq`, `data/order/local/` |
+| Sync via Ktor MockEngine | `data/remote/MockPosBackend.kt`, `data/order/remote/OrderSyncApi.kt` |
 | UUID idempotency keys | `PosViewModel.newOrderId`, `KtorOrderSyncApi.submit` |
 | Simulated transient failure + retry | `MockPosBackend.shouldFailNow`, `data/sync/OrderSyncCoordinator.kt` |
 | Coroutines + StateFlow | `PosViewModel.state`, SQLDelight `asFlow()` |
-| Manual + automatic sync, with logging | `PosViewModel.syncNow` / `setOnline`, `domain/SyncTrigger.kt`, `PosLog.kt` |
+| Manual + automatic sync, with logging | `PosViewModel.syncNow` / `setOnline`, `domain/model/SyncTrigger.kt`, `core/PosLog.kt` |
 | Compose Multiplatform UI | `ui/` |
 | Koin dependency injection | `di/KoinSetup.kt` |
 
@@ -57,33 +58,47 @@ Android is the only launcher target; all logic and UI live in the `shared` modul
 
 ## 4. Structure
 
-Two Gradle modules. Layers are packages, not modules.
+Three Gradle modules — two thin launchers over one shared module. Layers are packages, not modules,
+and the dependency direction is strict: **`data` depends on `domain`, never the reverse.**
 
 ```
 pos-kmp/
 ├── app-android/                  Android launcher only
 │   └── src/main/…                PosApplication, MainActivity, manifest, icons
+├── desktop-app/                  Compose for Desktop launcher only
+│   └── src/main/…                Main.kt (Window + PosApp)
 └── shared/
     └── src/
         ├── commonMain/kotlin/com/example/pos/
-        │   ├── domain/           Product, Cart, CartLine, CartTotals, CartCalculator,
-        │   │                     Order, OrderLine, OrderSyncState, SyncTrigger, Money
-        │   ├── data/
-        │   │   ├── catalog/      CatalogApi, CatalogRepository, DTOs
-        │   │   ├── order/        OrderSyncApi, OrderRepository, OrderLocalDataSource, mapping
+        │   ├── core/             AppInfo, PosLog (cross-cutting)
+        │   ├── domain/           ← pure business rules, no I/O
+        │   │   ├── model/        Product, Cart, CartLine, CartTotals, Order, SyncTrigger
+        │   │   ├── repository/   CatalogRepository, OrderRepository  (interfaces)
+        │   │   ├── CartCalculator.kt   the one place totals are computed
+        │   │   └── Money.kt           the rounding rule
+        │   ├── data/             ← implementations of the domain contracts
+        │   │   ├── catalog/      model/ (DTOs) · remote/ (Ktor) · DefaultCatalogRepository
+        │   │   ├── order/        model/ (DTOs) · local/ (SQLDelight) · remote/ (Ktor)
+        │   │   │                 · DefaultOrderRepository
         │   │   ├── remote/       MockPosBackend (Ktor MockEngine)
         │   │   └── sync/         OrderSyncCoordinator
         │   ├── presentation/     PosViewModel, PosUiState, AppDestination
         │   ├── ui/               PosApp, screens/, components/, theme/
         │   └── di/               Koin modules, ioDispatcher
         ├── commonMain/sqldelight/…/PendingOrders.sq
-        ├── androidMain/          SQLDelight driver, Dispatchers.IO, @Preview composables
+        ├── androidMain/          AndroidSqliteDriver, Dispatchers.IO, @Preview composables
+        ├── desktopMain/          JdbcSqliteDriver, Dispatchers.IO
         ├── commonTest/           pure domain, mapping and repository-contract tests
         └── androidUnitTest/      tests needing a JVM SQLite database
 ```
 
-One `PosViewModel` backs all three destinations, because the cart, catalog and order history are
-shared state — splitting them would only mean synchronising them again. Navigation is a three-value
+Where to look: *how tax is calculated* → `domain/CartCalculator.kt`; *what an order is* →
+`domain/model/Order.kt`; *what you can do with orders* → `domain/repository/OrderRepository.kt`;
+*how they are stored* → `data/order/local/`; *how they are sent* → `data/order/remote/`.
+
+The only `expect`/`actual` pairs are the SQLDelight driver and `ioDispatcher`. One `PosViewModel`
+backs all three destinations, because the cart, catalog and order history are shared state —
+splitting them would only mean synchronising them again. Navigation is a three-value
 `AppDestination` enum held in state; there is no navigation library.
 
 ## 5. Data flow
@@ -213,6 +228,19 @@ Install and launch on a connected device or emulator:
 `local.properties` must point at an Android SDK (`sdk.dir`); it is not checked in. Opening the
 project in Android Studio and pressing Run works too — the `@Preview` composables under
 `shared/src/androidMain` cover every screen state.
+
+### Running the desktop app
+
+The same app on the JVM, via Compose for Desktop:
+
+```bash
+./gradlew :desktop-app:run
+```
+
+It opens a native "Revest POS" window running the identical shared UI. The order database is a
+SQLite file at `~/.revest-pos/pos.db`, so checkouts persist across launches just as on Android.
+`./gradlew :desktop-app:packageDistributionForCurrentOS` produces a native installer (MSI / DMG /
+DEB).
 
 ## 12. Running tests
 

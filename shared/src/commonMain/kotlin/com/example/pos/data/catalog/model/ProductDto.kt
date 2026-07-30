@@ -1,6 +1,6 @@
-package com.example.pos.data.catalog
+package com.example.pos.data.catalog.model
 
-import com.example.pos.domain.Product
+import com.example.pos.domain.model.Product
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

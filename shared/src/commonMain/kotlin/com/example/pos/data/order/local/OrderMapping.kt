@@ -1,9 +1,9 @@
-package com.example.pos.data.order
+package com.example.pos.data.order.local
 
-import com.example.pos.domain.CartTotals
-import com.example.pos.domain.Order
-import com.example.pos.domain.OrderLine
-import com.example.pos.domain.OrderSyncState
+import com.example.pos.domain.model.CartTotals
+import com.example.pos.domain.model.Order
+import com.example.pos.domain.model.OrderLine
+import com.example.pos.domain.model.OrderSyncState
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 

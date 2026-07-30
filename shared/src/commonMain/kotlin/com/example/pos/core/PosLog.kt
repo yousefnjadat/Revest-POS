@@ -1,4 +1,4 @@
-package com.example.pos
+package com.example.pos.core
 
 
 internal object PosLog {

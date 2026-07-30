@@ -1,10 +1,10 @@
 package com.example.pos.presentation
 
-import com.example.pos.domain.Cart
-import com.example.pos.domain.CartLine
-import com.example.pos.domain.CartTotals
-import com.example.pos.domain.Order
-import com.example.pos.domain.Product
+import com.example.pos.domain.model.Cart
+import com.example.pos.domain.model.CartLine
+import com.example.pos.domain.model.CartTotals
+import com.example.pos.domain.model.Order
+import com.example.pos.domain.model.Product
 
 sealed interface CatalogUiState {
     data object Loading : CatalogUiState

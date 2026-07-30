@@ -1,7 +1,10 @@
 package com.example.pos.data.order
 
-import com.example.pos.domain.OrderLine
-import com.example.pos.domain.OrderSyncState
+import com.example.pos.data.order.local.orderFromRow
+import com.example.pos.data.order.local.encodeLines
+import com.example.pos.data.order.local.decodeLines
+import com.example.pos.domain.model.OrderLine
+import com.example.pos.domain.model.OrderSyncState
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

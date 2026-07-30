@@ -1,5 +1,7 @@
 package com.example.pos.domain
 
+import com.example.pos.domain.model.CartTotals
+import com.example.pos.domain.model.CartLine
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

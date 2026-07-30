@@ -40,8 +40,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.example.pos.domain.Order
-import com.example.pos.domain.OrderSyncState
+import com.example.pos.domain.model.Order
+import com.example.pos.domain.model.OrderSyncState
 import com.example.pos.presentation.PosUiState
 import com.example.pos.ui.components.BannerTone
 import com.example.pos.ui.components.EmptyState

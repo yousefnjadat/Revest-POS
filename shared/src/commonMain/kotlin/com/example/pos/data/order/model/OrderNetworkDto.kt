@@ -1,18 +1,10 @@
-package com.example.pos.data.order
+package com.example.pos.data.order.model
 
-import com.example.pos.data.remote.IDEMPOTENCY_KEY_HEADER
-import com.example.pos.data.remote.POS_BASE_URL
-import com.example.pos.domain.Order
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
+import com.example.pos.domain.model.Order
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/** The JSON body of `POST /orders`. Money crosses the wire as whole cents, never a decimal. */
 @Serializable
 internal data class OrderRequestDto(
     @SerialName("order_id") val orderId: String,
@@ -33,36 +25,12 @@ internal data class OrderLineRequestDto(
     val taxable: Boolean,
 )
 
+/** The backend's answer. [duplicate] is true when this order id had already been accepted. */
 @Serializable
 internal data class OrderAcceptedDto(
     @SerialName("order_id") val orderId: String,
     val duplicate: Boolean,
 )
-
-internal data class SyncAcknowledgement(
-    val orderId: String,
-    val duplicate: Boolean,
-)
-
-internal interface OrderSyncApi {
-    suspend fun submit(order: Order): SyncAcknowledgement
-}
-
-internal class KtorOrderSyncApi(
-    private val client: HttpClient,
-) : OrderSyncApi {
-    override suspend fun submit(order: Order): SyncAcknowledgement {
-        val accepted =
-            client
-                .post("$POS_BASE_URL/orders") {
-                    header(IDEMPOTENCY_KEY_HEADER, order.id)
-                    contentType(ContentType.Application.Json)
-                    setBody(order.toRequestDto())
-                }.body<OrderAcceptedDto>()
-
-        return SyncAcknowledgement(orderId = accepted.orderId, duplicate = accepted.duplicate)
-    }
-}
 
 internal fun Order.toRequestDto(): OrderRequestDto =
     OrderRequestDto(

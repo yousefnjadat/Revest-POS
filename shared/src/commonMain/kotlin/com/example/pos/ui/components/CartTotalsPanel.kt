@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.pos.domain.CartCalculator
-import com.example.pos.domain.CartTotals
+import com.example.pos.domain.model.CartTotals
 import com.example.pos.ui.formatMoney
 import com.example.pos.ui.theme.PosSpacing
 import com.example.pos.ui.theme.statusColors

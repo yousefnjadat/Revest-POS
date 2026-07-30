@@ -2,13 +2,13 @@ package com.example.pos.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.pos.PosLog
-import com.example.pos.data.catalog.CatalogRepository
-import com.example.pos.data.catalog.CatalogResult
-import com.example.pos.data.order.OrderRepository
+import com.example.pos.core.PosLog
+import com.example.pos.domain.repository.CatalogRepository
+import com.example.pos.domain.repository.CatalogResult
+import com.example.pos.domain.repository.OrderRepository
 import com.example.pos.data.sync.OrderSyncCoordinator
-import com.example.pos.domain.SyncTrigger
-import com.example.pos.domain.toOrder
+import com.example.pos.domain.model.SyncTrigger
+import com.example.pos.domain.model.toOrder
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
 import kotlin.uuid.Uuid

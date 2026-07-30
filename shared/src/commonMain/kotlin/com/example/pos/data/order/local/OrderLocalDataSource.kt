@@ -1,9 +1,9 @@
-package com.example.pos.data.order
+package com.example.pos.data.order.local
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import com.example.pos.db.PosDatabase
-import com.example.pos.domain.Order
+import com.example.pos.domain.model.Order
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext

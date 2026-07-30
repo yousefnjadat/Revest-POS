@@ -1,5 +1,7 @@
-package com.example.pos.data.catalog
+package com.example.pos.data.catalog.remote
 
+import com.example.pos.data.catalog.model.ProductDto
+import com.example.pos.data.catalog.model.CatalogResponseDto
 import com.example.pos.data.remote.POS_BASE_URL
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
